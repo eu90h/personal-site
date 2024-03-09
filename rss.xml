@@ -11,6 +11,13 @@
       <author>Stefan</author>
     </item>
     <item>
+      <title>Getting Mastodon to Run on a Low-RAM VPS</title>
+      <link>https://eu90h.com/running-mastodon.html</link>
+      <description>Setting up Mastodon is simple, but there are some snags in building on a low-end computer.</description>
+      <pubDate>2024-03-09</pubDate>
+      <author>Stefan</author>
+    </item>
+    <item>
       <title>Setting up a Rust winit/wgpu Development Environment on Wayland under NixOS</title>
       <link>https://eu90h.com/wgpu-winit-and-nixos.html</link>
       <description>It can be surprisingly tough to get all the dependencies in place just to be able to create a window.</description>

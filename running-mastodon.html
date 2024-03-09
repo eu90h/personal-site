@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Getting Mastodon to Run on a Low-RAM VPS</title>
+  <link rel="canonical" href="https://eu90h.com/running-mastodon.html" />
+  <link rel="stylesheet" href="https://unpkg.com/normalize.css@8.0.1/normalize.css">
+  <link rel="stylesheet" href="https://unpkg.com/concrete.css@2.1.1/concrete.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <style>
+    code {
+      white-space: pre;
+    }
+
+    code.inline {
+      white-space: normal;
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <head>
+      <h1>Getting Mastodon to Run on a Low-RAM VPS</h1>
+    </head>
+    <noscript>
+      JavaScript is required on this page only for syntax highlighting via
+      <a href="https://highlightjs.org/">highlight.js</a>
+    </noscript> 
+    <section>
+      <p>
+        I recently spent a couple hours configuring a Mastodon instance and thought I'd record some troubles I
+        encountered and their solutions.
+      </p>
+      <p>
+        Thankfully, Mastodon installation and configuration is pretty easy. The <a
+          href="https://docs.joinmastodon.org/admin/install/">installation manual</a> is comprehensive and easy to
+        follow (just make sure you do each step as stated, in the correct order).
+      </p>
+    </section>
+    <section>
+      <p>
+        The biggest problem I encountered was that the `bundle exec rails assets:precompile` step failed because
+        my VM ran out of memory. I also had installed the latest node version, which seemed to cause some
+        incompatibilities.
+      </p>
+      <p>
+        In order to get the right node version, we can run
+        <br/><code>
+sudo apt-get remove nodejs
+curl -sL https://deb.nodesource/com/setup_18.x | sudo -E bash -
+sudo apt-get install nodejs -y
+        </code><br/>
+        Some GitHub messages suggested node18, which is a bit old now so you'll get a deprecation notice running the
+        installer.
+      </p>
+    </section>
+    <section>
+      <p>
+        Some searching reveals that a common way to reduce RAM requirements during the
+        build process
+        is to reduce build-time parallelism and turn off some Terser Webpack features. This is done in
+        `config/webpack/product.js` from the root mastodon directory. The patch may be found <a href="https://gist.github.com/eu90h/b4e1467cc5df21342846c0bb6d0e97a6">here</a>.
+        <br/><pre><code class="language-diff">
+diff --git a/config/webpack/production.js b/config/webpack/production.js
+index cec810184..a5807830a 100644
+--- a/config/webpack/production.js
++++ b/config/webpack/production.js
+@@ -15,8 +15,9 @@ const sharedConfig = require('./shared');
+  const root = resolve(__dirname, '..', '..');
+           
+  module.exports = merge(sharedConfig, {
++  parallelism: 1,
+   mode: 'production',
+-  devtool: 'source-map',
++  devtool: 'none',
+   stats: 'normal',
+   bail: true,
+   optimization: {
+@@ -24,8 +25,8 @@ module.exports = merge(sharedConfig, {
+     minimizer: [
+       new TerserPlugin({
+         cache: true,
+-        parallel: true,
+-        sourceMap: true,
++        parallel: false,
++        sourceMap: false,
+       }),
+     ],
+  },
+</pre></code>
+      </p>
+    </section>
+    <section>
+      <p>
+        During setup, I decided to try out <a href="https://wasabi.com/">Wasabi</a> without realizing that public access
+        is limited on
+        trial/unpaid accounts. Deferring difficult storage decisions until later, I wanted to just use local storage
+        instead.
+        Thanks to <a
+          href="https://www.bentasker.co.uk/posts/documentation/general/reconfiguring-mastodon-to-use-digitalocean-spaces-for-media-storage.html">this
+          post</a>
+        by Ben Tasker, I was able to easily change the storage backend post-installation.
+      </p>
+      <p>
+        To resolve this, simply edit `.env.product` in your mastodon root directory, changing the line
+        <code>S3_ENABLED=true</code> to <code>S3_ENABLED=false</code>. Of course this can be used to change from local
+        to cloud storage after installation as well.
+        Restart the mastodon services to ensure the changes take effect.
+      </p>
+    </section>
+  </main>
+</body>
+
+</html>

@@ -1,2 +1,2 @@
 # eu90h.github.io
-A page where I write about stuff
+This repository contains files for my [personal site](https://eu90h.com). Content is added to this repository and changes are pushed to the site upon receiving a [webhook notification](https://github.com/eu90h/webhook-handler).

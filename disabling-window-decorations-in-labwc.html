@@ -25,16 +25,16 @@
   <main>
     <h1>Disable Window Decorations and Window Switcher Menu in labwc</h1>
     <section>
-      <p>I've enjoyed my experience with <a href="">labwc</a> so far. One thing I don't enjoy, though, are the window
+      <p>I've enjoyed my experience with <a href="https://labwc.github.io/">labwc</a> so far. One thing I don't enjoy, though, are the window
         decorations.
         Luckily, after a <a href="https://github.com/labwc/labwc/issues/751#issuecomment-1537141128">May 2023 patch</a>,
         they can be easily turned off by adding the following to your
-        <code>.config/labwc/rc.xml</code> file:
+        <code style="inline">.config/labwc/rc.xml</code> file:
       </p>
       <code>
-        &lt;windowRules&gt;
-        &lt;windowRule identifier="*" serverDecoration="no" /&gt;
-        &lt;/windowRules&gt;
+&lt;windowRules&gt;
+&lt;windowRule identifier="*" serverDecoration="no" /&gt;
+&lt;/windowRules&gt;
       </code>
     </section>
     <section>
@@ -47,7 +47,7 @@
         property. Here's my settings:
       </p>
       <code>
-        &lt;windowSwitcher show="no" preview="yes" outlines="no"&gt;
+&lt;windowSwitcher show="no" preview="yes" outlines="no"&gt;
       </code>
       <p>
         No more menus!

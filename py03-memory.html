@@ -31,6 +31,11 @@
   <main>
     <h3>Mind Your PyO3 Allocations!</h3>
     <section>
+      <p>WARNING: This post covers the old pre-v0.21.0 PyO3 API. For more about the new "Bound" API see <a href="https://polar.sh/davidhewitt/posts/replacing-pyo3-api-pt1">this post</a> by David Hewitt.
+      Thanks to <a href="https://hachyderm.io/@Dr_Emann">@Dr_Emann</a> for alerting me to this.
+      </p>
+    </section>
+    <section>
       <p>I was recently messing around with the <a href="https://pyo3.rs">PyO3</a> Rust library. It let's you write Rust code that either calls Python code
       or is itself called by Python code. In my use case (processing lots of lines of a JSON file and call a Python function), I was having a problem where the
        program's memory usage grew unbounded.</p>
@@ -62,6 +67,7 @@
   <footer>
     <a href="/index.html">home</a>
     <a href="/about.html">about</a>
+    <p>last updated: 2024/03/18</p>
   </footer>
 </body>
 </html>

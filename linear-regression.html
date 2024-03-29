@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Linear Regression</title>
+  <link rel="canonical" href="https://eu90h.com/decision-trees-intro.html" />
+  <link rel="stylesheet" href="https://unpkg.com/normalize.css@8.0.1/normalize.css">
+  <link rel="stylesheet" href="https://unpkg.com/concrete.css@2.1.1/concrete.css">
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <style>
+    code {
+      white-space: pre;
+    }
+
+    code.inline {
+      white-space: normal;
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <h3>Linear Regression</h3>
+    
+    <section>
+        <p>
+            Linearity is a great property for functions to have. Suppose we have a function \(f:\mathbb{R}^n\rightarrow\mathbb{R}^n\) mapping n-dimensional vectors to n-dimensional vectors. We say \(f\) is <em>linear</em> if
+            $$
+                f(a\vec{x}+b\vec{y}) = af(\vec{x})+bf(\vec{y}),
+            $$
+            where \(a,b\in\mathbb{R}\) are scalars and \(\vec{x},\vec{y}\in\mathbb{R}^n\) are vectors. Essentially, they preserve the structure of a vector space.
+        </p>
+        <p>
+            The convenience of linear functions has historically made them a popular choice for modelling. In particular, they're easy to compute.
+        </p>
+    </section>
+    <section>
+        <p>
+            Suppose we have a vector \(\vec{x}\in\mathbb{R}^n\) (whose components \(x_i\) we'll call <em>features</em>) and a value \(y\) we wish to <em>predict</em>.
+            A <em>linear model</em> is a model that attempts to predict \(y\) in terms of linear combinations of the features \(x_i\):
+            $$
+            f(\vec{x}) = f(x_1, x_2,\dots,x_n) = \hat{y} = \beta_0 + \sum_{i=1}^n x_i\beta_i,
+            $$
+            where the \(\beta_i\)'s are coefficients that can be estimated, as we'll see.<br/>
+
+            We write the predicted value of \(y\) as \(\hat{y}\) (pronounced <em>y hat</em>). It is common in statistics and machine learning to write a circumflex over a letter to denote a predicted quantity.
+        </p>
+        <p>
+            We can fully utilize vector notation if we augment \(\vec{x}\) with the constant 1 and form the vector \(\vec{\beta}=(\beta_0,\beta_1,\dots,\beta_n)\).
+            Now we can write the model as
+            $$
+            \hat{y} = \vec{x}\cdot\vec\beta = \vec{x}^T \vec{\beta}
+            $$
+        </p>
+    </section>
+    <section>
+        <p>
+            Now that we can make predictions, it'd be nice to know <em>how good</em> they are. We do this by choosing a <em>loss function</em>.
+            Suppose that after making a prediction \(\hat{y}_i\), using features \(\vec{x}_i\) and coefficients \(\beta\), we then observe the actual outcome \(y_i\). The most common loss function is the sum of squared errors (or just sum of squares):
+            $$
+            \ell(\beta) = \sum_{i=1}^n(y_i - \vec{x_i}^T\beta)^2
+            $$
+            Notice that the loss is a function of the coefficients. We'll use this quantity to guide us in improving our estimates of the model coefficients \(\beta\).
+        </p>
+        <p>
+            We rewrite the loss function using vector notation like so:
+            $$
+            \ell(\beta) = (\vec{y} - \textbf{X}\vec{\beta})^T(\vec{y} - \textbf{X}\vec{\beta}),
+            $$
+            where \(\textbf{X} = \left[\vec{x}_1\,\dots\,\vec{x}_n\right]\)
+            is the matrix with the \(\vec{x}_i\)'s as column vectors.
+        </p>
+        <p>
+            Using the properties of the transpose operation and some algebra, we find that
+            $$
+\begin{equation}
+\begin{aligned}
+\ell(\beta) =
+(\vec{y} - \textbf{X}\vec{\beta})^T(\vec{y} - \textbf{X}\vec{\beta})
+    &= (\vec{y}^T - (\textbf{X}\vec{\beta})^T)(\vec{y} - \textbf{X}\vec{\beta}) \\
+    &= \vec{y}^T\vec{y} - \vec{y}^T\textbf{X}\vec{\beta} - (\textbf{X}\vec{\beta})^T\vec{y} +(\textbf{X}\vec{\beta})^T(\textbf{X}\vec{\beta})
+\end{aligned}
+\end{equation}
+            $$
+        </p>
+        <p>
+            We want to minimize this quantity, which we know from calculus occurs at those points where the first derivative vanishes and the second derivative is concave up.
+            Before proceeding, let's prove two facts from the matrix calculus.
+        </p>
+        <p>
+            Consider two vectors \(\vec{a} = (a_1, a_2, \dots, a_n)\) and \(\vec{b} = (b_1,b_2,\dots,b_n)\).
+            Then,
+            $$
+            \begin{equation}
+            \begin{aligned}
+            \frac{\partial }{\partial \vec{b}}\vec{a}^T \vec{b} &= \left(\frac{\partial}{\partial b_1}\sum_{i=1}^na_ib_i,\,\dots\,,\frac{\partial}{\partial b_n}\sum_{i=1}^na_ib_i\right) \\
+                &= \left(a_1,\,\dots,a_k\right) \\
+                &= \vec{a}
+            \end{aligned}
+            \end{equation}
+            $$
+        </p>
+    </section>
+
+  </main>
+</body>
+</html>

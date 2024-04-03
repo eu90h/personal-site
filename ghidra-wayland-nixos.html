@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Ghidra on labwc on Wayland on NixOS</title>
+  <link rel="canonical" href="https://eu90h.com/decision-trees-intro.html" />
+  <link rel="stylesheet" href="https://unpkg.com/normalize.css@8.0.1/normalize.css">
+  <link rel="stylesheet" href="https://unpkg.com/concrete.css@2.1.1/concrete.css">
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <style>
+    code {
+      white-space: pre;
+    }
+
+    code.inline {
+      white-space: normal;
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <h3>Ghidra on labwc on Wayland on NixOS</h3>
+    
+    <section>
+        <p>
+            I recently wanted to peek at a binary with <a href="https://ghidra-sre.org/">Ghidra</a> but after initialization it just showed a grey window.
+            The problem lies with the Java UI library used, which looks up the environment's window manager within a hardcoded list of window managers.
+            Unfortunately, this list doesn't include the WM I use, <a href="https://labwc.github.io/">labwc</a>.
+        </p>
+        <p>
+            The solution is to simply <em>impersonate</em> a WM that <em>is</em> on the list. We can do this with the <a href="https://tools.suckless.org/x/wmname/">wmname</a> tool.
+            There is a handy nixpkg available for wmname as well. To actually get Ghidra to go, we first execute
+            <br/>
+            <code>
+                wmname LG3D
+            </code>
+            <br/>
+            Now Ghidra should display the main window.
+        </p>
+    </section>
+    <section>
+        <p>
+            Be sure to grab a <a href="https://github.com/zackelia/ghidra-dark-theme">dark theme</a> for Ghidra while you're at it. Happy reversing!
+        </p>
+    </section>
+    <footer>
+        <a href="index.html">home</a>
+        <a href="about.html">about</a>
+      </footer>
+    </main>
+</body>
+</html>

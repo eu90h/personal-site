@@ -11,6 +11,13 @@
       <author>Stefan</author>
     </item>
     <item>
+      <title>Ghidra on labwc on Wayland on NixOS: A Lesson in Java UI Toolkit Weirdness</title>
+      <link>https://eu90h.com/ghidra-wayland-nixos.html</link>
+      <description>A quick note on wm impersonation to get some Java programs to render a window.</description>
+      <pubDate>2024-04-03</pubDate>
+      <author>Stefan</author>
+    </item>
+    <item>
       <title>Mind Your PyO3 Allocations!</title>
       <link>https://eu90h.com/py03-memory.html</link>
       <description>Be careful about how you allocate memory with PyO3, otherwise your computer will explode.</description>

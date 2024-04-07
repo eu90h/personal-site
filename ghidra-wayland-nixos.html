@@ -30,8 +30,8 @@
     <section>
         <p>
             I recently wanted to peek at a binary with <a href="https://ghidra-sre.org/">Ghidra</a> but after initialization it just showed a grey window.
-            The problem lies with the Java UI library used, which looks up the environment's window manager within a hardcoded list of window managers.
-            Unfortunately, this list doesn't include the WM I use, <a href="https://labwc.github.io/">labwc</a>.
+            The problem lies with the Java UI library used which looks up the environment's window manager within a hardcoded list of window managers.
+            Unfortunately, this list doesn't include the WM I use: <a href="https://labwc.github.io/">labwc</a>.
         </p>
         <p>
             The solution is to simply <em>impersonate</em> a WM that <em>is</em> on the list. We can do this with the <a href="https://tools.suckless.org/x/wmname/">wmname</a> tool.

@@ -63,24 +63,23 @@
             Now that we can make predictions, it'd be nice to know <em>how good</em> they are. We do this by choosing a <em>loss function</em>.
             Suppose that after making a prediction \(\hat{y}_i\), using features \(\vec{x}_i\) and coefficients \(\beta\), we then observe the actual outcome \(y_i\). The most common loss function is the sum of squared errors (or just sum of squares):
             $$
-            \ell(\beta) = \sum_{i=1}^n(y_i - \vec{x_i}^T\beta)^2
+            \ell(\beta_1,\dots,\beta_n) = \sum_{i=1}^n(y_i - \vec{x_i}^T\beta_i)^2
             $$
             Notice that the loss is a function of the coefficients. We'll use this quantity to guide us in improving our estimates of the model coefficients \(\beta\).
         </p>
         <p>
             We rewrite the loss function using vector notation like so:
             $$
-            \ell(\beta) = (\vec{y} - \textbf{X}\vec{\beta})^T(\vec{y} - \textbf{X}\vec{\beta}),
+            \ell(\vec\beta) = (\vec{y} - \textbf{X}\vec{\beta})^T(\vec{y} - \textbf{X}\vec{\beta}),
             $$
-            where \(\textbf{X} = \left[\vec{x}_1\,\dots\,\vec{x}_n\right]\)
-            is the matrix with the \(\vec{x}_i\)'s as column vectors.
+            where \(\textbf{X}\) is a matrix.
         </p>
         <p>
             Using the properties of the transpose operation and some algebra, we find that
             $$
 \begin{equation}
 \begin{aligned}
-\ell(\beta) =
+\ell(\vec\beta) =
 (\vec{y} - \textbf{X}\vec{\beta})^T(\vec{y} - \textbf{X}\vec{\beta})
     &= (\vec{y}^T - (\textbf{X}\vec{\beta})^T)(\vec{y} - \textbf{X}\vec{\beta}) \\
     &= \vec{y}^T\vec{y} - \vec{y}^T\textbf{X}\vec{\beta} - (\textbf{X}\vec{\beta})^T\vec{y} +(\textbf{X}\vec{\beta})^T(\textbf{X}\vec{\beta})
@@ -88,25 +87,41 @@
 \end{equation}
             $$
         </p>
-        <p>
-            We want to minimize this quantity, which we know from calculus occurs at those points where the first derivative vanishes and the second derivative is concave up.
-            Before proceeding, let's prove two facts from the matrix calculus.
+    </section>
+    <section>
+        <p>To minimize the loss function, we will compute its gradient.
+            Let \(\vec e = \vec{y} - X\vec{\beta}\) with components \(e_i = y_i - \sum_{j=1}^nx_{ij}\beta_j\)
+            so that we may write the loss function as \(\ell(\vec\beta) = \vec{e}^T \vec{e} = \sum_{i=1}^n e_i^2\).
         </p>
         <p>
-            Consider two vectors \(\vec{a} = (a_1, a_2, \dots, a_n)\) and \(\vec{b} = (b_1,b_2,\dots,b_n)\).
-            Then,
+            Now we compute the derivative of the loss function with respect to a single component of \(\vec\beta\).
             $$
             \begin{equation}
-            \begin{aligned}
-            \frac{\partial }{\partial \vec{b}}\vec{a}^T \vec{b} &= \left(\frac{\partial}{\partial b_1}\sum_{i=1}^na_ib_i,\,\dots\,,\frac{\partial}{\partial b_n}\sum_{i=1}^na_ib_i\right) \\
-                &= \left(a_1,\,\dots,a_k\right) \\
-                &= \vec{a}
+\begin{aligned}
+            \frac{\partial\ell}{\partial \beta_k} &= \sum_i 2e_i \frac{\partial e_i}{\partial \beta_k}\\
+            &= -2\sum_i x_{ik}e_i \\
+            &= -2\vec{X}_k \cdot (\vec{y} - X\vec{\beta})
             \end{aligned}
-            \end{equation}
+\end{equation}
+            $$
+            where \(\vec{X}_k \) is a column-vector of the matrix \(X\).
+            We can put this all together by writing
+            $$
+            \nabla\ell = -2 X^T(\vec{y} - X\vec\beta).
             $$
         </p>
+        <p>
+            This quantity is minimized where
+            $$
+            \nabla\ell = X^T (\vec{y} - X\vec\beta) = X^T \vec{y} - X^T X \vec\beta = 0.
+            $$
+            Some simple algebra gives the solution:
+            $$
+            \beta = (X^T X)^{-1} X^T\vec{y}
+            $$
+            \(\square\)
+        </p>
     </section>
-
   </main>
 </body>
 </html>

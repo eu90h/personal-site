@@ -11,6 +11,13 @@
       <author>Stefan</author>
     </item>
     <item>
+      <title>Deriving the Matrix form of Linear Regression</title>
+      <link>https://eu90h.com/linear-regression.html</link>
+      <description>A note showing how to solve a multivariate least squares regression.</description>
+      <pubDate>2024-04-09</pubDate>
+      <author>Stefan</author>
+    </item>
+    <item>
       <title>Ghidra on labwc on Wayland on NixOS: A Lesson in Java UI Toolkit Weirdness</title>
       <link>https://eu90h.com/ghidra-wayland-nixos.html</link>
       <description>A quick note on wm impersonation to get some Java programs to render a window.</description>

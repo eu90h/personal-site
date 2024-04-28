@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>The Prosecutor's Fallacy</title>
+        <link rel="canonical" href="https://eu90h.com/limit-problem.html" />
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <link rel="stylesheet" href="https://unpkg.com/normalize.css">
+        <link rel="stylesheet" href="https://unpkg.com/concrete.css">
+    </head>
+    <body>
+        <main>
+        <section>
+            <h3>The Prosecutor's Fallacy</h3>
+            <p>Exercise 2.10 (attributed to Peter Lee) in volume 1 of Kevin P. Murphy's <em>Probabilistic Machine Learning</em> concerns legal reasoning. It says:
+                <blockquote>
+                    <p>Suppose a crime has been committed. Blood is found at the scene for which there is no innocent explanation. It is of a type which is present in 1% of the population.</p>
+                     <p>The prosecutor claims: "There is a 1% chance that the defendant would have the crime blood type if he were innocent. Thus there is a 99% chance he is guilty". 
+                        This is known as the <b>prosecutor's fallacy</b>. What is wrong with this argument?</p>
+                </blockquote>
+            </p>
+            <p>
+                In its essence, the prosecutor's fallacy is when one improperly assumes that \(\text{Pr}[A|B] = \text{Pr}[B|A]\).
+                This error occurs in many scenarios, including epidemiology [0], law [1], ecology [2], and likely anywhere probability theory is used.
+            </p>
+        </section>
+        <section>
+            <p>Let's work out exercise 2.10 (above) to get a better understanding of this issue.</p>
+            <p>
+                Let
+                $$
+                \begin{align}
+                E = \text{rare blood type collected from the crime scene} \\
+                B = \text{defendant has rare blood type from crime scene} \\
+                I = \text{defendant is innocent} \\
+                \neg{I} = \text{defendant is guilty}
+                \end{align}
+                $$
+            </p>
+            <p>
+                Now let's try to phrase the prosecutor's argument mathematically. It appears that the prosecutor has incorrectly asserted that
+                $$
+                \text{Pr}\left[B|I,E\right] = 0.01 \implies \text{Pr}\left[\neg I|B,E\right] = 0.99
+                $$
+                How did the prosecutor arrive at this implication?
+            </p>
+            <p>
+                Recall that we are interested in the probability that the defendant is innocent given the evidence we've actually observed, \(\text{Pr}\left[I | B, E\right]\).
+                Using Bayes' theorem, we may write
+                $$
+                \text{Pr}\left[I|B, E\right] = \frac{\text{Pr}\left[B|I, E\right]\,\text{Pr}\left[I|E\right]}{\text{Pr}\left[B|I,E\right]\,\text{Pr}\left[I|E\right]+\text{Pr}\left[B|\neg I, E\right]\,\text{Pr}\left[\neg I | E\right]}
+                $$
+            </p>
+            <p>
+                Now let's consider the conditions under which the prosecutor's implication is true. For their argument to work, we would need \(\text{Pr}\left[I|B,E\right] = \text{Pr}\left[B|I,E\right]\).</p>
+                <p>Observe that \(\text{Pr}\left[B|I,E]\right]=\text{Pr}\left[B\right] = 0.01\). Now, if the defendant were guilty, the probability that the rare blood at the crime scene was theirs is now 100%, so \(\text{Pr}\left[B|\neg I, E\right] = 1\)
+            </p>
+            <p>
+                We can then rewrite the conditional probability of innocence like so:
+                $$
+                \text{Pr}\left[I|B,E\right] = \frac{\text{Pr}\left[B|I,E\right]\text{Pr}\left[I|E\right]}{\text{Pr}\left[B|I,E\right]\text{Pr}\left[I|E\right] + (1 - \text{Pr}\left[I|E\right])}
+                $$
+            </p>
+            <p>
+                Recall that the prosecutor assumes that \(\text{Pr}\left[I|B,E\right] = \text{Pr}\left[B|I,E\right]\). We can use this to rewrite the equation above:
+                $$
+                \text{Pr}\left[I|B,E\right]\left(1 - \frac{\text{Pr}\left[I|E\right]}{\text{Pr}\left[B|I,E\right]\text{Pr}\left[I|E\right] + (1 - \text{Pr}\left[I|E\right])}\right) = 0
+                $$
+            </p>
+            <p>
+                This forces the parenthetical expression to vanish:
+                $$
+                1 - \frac{\text{Pr}\left[I|E\right]}{\text{Pr}\left[B|I,E\right]\text{Pr}\left[I|E\right] + (1 - \text{Pr}\left[I|E\right])} = 0
+                $$
+            </p>
+            <p>
+                Multiplying by the denominator and performing some algebra, we find that
+                $$
+                \text{Pr}\left[I|E\right](\text{Pr}\left[B|I,E\right] - 2) + 1 = 0
+                $$
+                or
+                $$
+                \text{Pr}\left[I|E\right] = \frac{1}{2 - \text{Pr}\left[B|I,E\right]}
+                $$
+            </p>
+            <p>
+                We were given the probability \(\text{Pr}\left[B|I,E\right] = 0.01\), so \(\text{Pr}\left[I|E\right] = \frac{100}{199} \approx 0.5\).
+                This whole derivation only works if we're willing to accept that the base rate of guilt is essentially a coin flip.
+            </p>
+        </section>
+        <section>
+            <p>
+                Presumption of innocence is considered a fundamental right in many countries across the world.
+                The burden of proof that an individual is guilty falls upon the prosecutor.
+                In a criminal trial like the one outlined in the example, the prosecution has to establish
+                <em>beyond any reasonable doubt</em> that the accused is in fact guilty.
+            </p>
+            <p>
+                If we're on a jury and the prosecutor tries the argument we analyzed above, we can only accept it if we think that the base rate of innocence is 50%.
+                This is incompatible with a presumption of innocence, and thus violates the defendant's rights.
+            </p>
+        </section>
+        <section>
+            <h3>References</h3>
+            <ul>
+                <li>[0] Westreich, D., & Iliinsky, N. (2014). <a href="https://doi.org/10.1093/aje/kwu025">Epidemiology visualized: the prosecutor's fallacy</a>. American Journal of Epidemiology, 179(9), 1125 - 1127.</li>
+                <li>[1] Thompson, W. C., & Schumann, E. L. (1987). <a href="https://doi.org/10.1007/BF01044641">Interpretation of statistical evidence in criminal trials: The prosecutor's fallacy and the defense attorney's fallacy</a>. Law and Human Behavior, 11(3), 167 - 187.</li>
+                <li>[2] Boettiger, C., & Hastings, A. (2012). <a href="https://doi.org/10.1098/rspb.2012.2085">Early warning signals and the prosecutor’s fallacy</a>. Proceedings - Royal Society. Biological Sciences/Proceedings - Royal Society. Biological Sciences, 279(1748), 4734–4739.</li>
+                <li>[3] Murphy, K. P. (2022). Probabilistic Machine Learning: An Introduction. MIT Press.</li>
+            </ul>
+        </section>
+        <footer>
+            <a href="index.html">home</a>
+            <a href="about.html">about</a>
+        </footer>
+        </main>
+    </body>
+</html>

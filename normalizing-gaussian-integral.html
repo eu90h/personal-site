@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>Normalizing the Gaussian Integral</title>
+        <title>Normalizing the Gaussian Integral: The Single-Variable Case</title>
         <link rel="canonical" href="https://eu90h.com/normalizing-gaussian-integral.html" />
         <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
         <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -12,5 +12,108 @@
         <link rel="stylesheet" href="https://unpkg.com/concrete.css">
     </head>
     <body>
+        <main>
+            <section>
+                <h3>Normalizing the Gaussian Integral: The Single-Variable Case</h3>
+                <p>
+                    The goal here is to compute the integral
+                    $$
+                    Z = \int_{-\infty}^{\infty}e^{-\frac{x^2}{2\sigma^2}}dx
+                    $$
+                    where \(\sigma > 0\) is a real number.
+                </p>
+                <p>
+                    <blockquote>
+                        Young man, in mathematics you don't understand things. You just get used to them.<br/>
+                        &mdash; John von Neumann to Felix T. Smith
+                    </blockquote>
+                    I've always felt the solution to this has an air of mystery to it - it's not immediately obvious how one might have come up with this.
+                    Lucky for us, Siméon Denis Poisson did all the hard work in the early 1800s.
+                </p>
+            </section>
+            <section>
+                <p>
+                    Sometimes, to solve a tough problem, it can be easier to solve a related problem and relate the solution to our original problem.
+
+                    We want to compute
+                    $$
+                    Z = \int_{-\infty}^{\infty}e^{-\frac{x^2}{2\sigma^2}}dx.
+                    $$
+                    Instead, we're going to first compute 
+                    $$
+                    Z^2 = \left(\int_{-\infty}^{\infty}e^{-\frac{x^2}{2\sigma^2}}dx\right)^2.
+                    $$
+                </p>
+            </section>
+            <section>
+                <p>
+                    Starting from
+                    $$
+                    Z^2 = \left(\int_{-a}^{a}e^{-\frac{x^2}{2\sigma^2}}dx\right)^2,
+                    $$
+                    observe that
+                    $$
+                    \begin{equation}
+                    \begin{aligned}
+                    Z^2 &= \left(\int_{-a}^{a}e^{-\frac{x^2}{2\sigma^2}}dx\right)^2 \\
+                        &= \left(\int_{-a}^{a}e^{-\frac{x^2}{2\sigma^2}}dx\right)\left(\int_{-a}^{a}e^{-\frac{y^2}{2\sigma^2}}dy\right) \\
+                        &= \int_{-a}^{a}\int_{-a}^{a}\exp\left({-\frac{1}{2\sigma^2}(x^2 + y^2)}\right)dxdy.
+                    \end{aligned}
+                    \end{equation}
+                    $$
+                </p>
+                <p>
+                    Now the decisive step: we make the substitution \(x=r\cos\theta,\, y=r\sin\theta\).
+                    (When integrating, an expression like \(x^2 + y^2\) is <em>screaming</em> for a trigonometric substitution.)
+                </p>
+                <p>
+                    At a minimum, \(r\) is zero at \(x=0,\,y=0\); it attains its maximum \(r = a\sqrt{2}\) at the points \((\pm a, \pm a)\). The angle \(\theta\), on the other hand, lies in \([0,2\pi)\).
+                </p>
+                <p>
+                    The infinitesimal area element \(dxdy\) is now transformed into \(rdrd\theta\), so our integral then becomes
+                    $$
+                    \begin{equation}
+                    \begin{aligned}
+                    Z^2 &= \int_{0}^{a\sqrt{2}}\int_{0}^{2\pi}\exp\left({-\frac{r^2}{2\sigma^2}}\right)rd\theta dr
+                    \end{aligned}
+                    \end{equation}
+                    $$
+                </p>
+            </section>
+            <section>
+                <p>
+                    Now let's proceed to calculating the integral. The inner integral with respect to \(\theta\) is simple:
+                    $$
+                    \int_{0}^{2\pi}\exp\left({-\frac{r^2}{2\sigma^2}}\right)rd\theta = 2\pi\exp\left({-\frac{r^2}{2\sigma^2}}\right)r
+                    $$
+                    so we're left with
+                    $$
+                    Z^2 = 2\pi \int_{0}^{a\sqrt{2}}\exp\left({-\frac{r^2}{2\sigma^2}}\right)rdr
+                    $$
+                </p>
+                <p>
+                    This final integral is easily computed with the substitution \(u={r^2}/{2\sigma^2}\), so we end up with
+                    $$
+                    Z^2 = 2\pi\sigma^2 (1 - \exp(-\frac{a^2}{\sigma^2}))
+                    $$
+                    Now let's take the limit as \(a\rightarrow\infty\), which yields
+                    $$
+                    \lim_{a\rightarrow\infty}Z^2 = 2\pi\sigma^2 (1 - \lim_{a\rightarrow\infty}\exp(-\frac{a^2}{\sigma^2})) = 2\pi\sigma^2
+                    $$
+                </p>
+            </section>
+            <section>
+                <p>
+                    Therefore,
+                    $$
+                    Z = \int_{-\infty}^{\infty}e^{-\frac{x^2}{2\sigma^2}}dx = \sigma\sqrt{2\pi}
+                    $$
+                </p>
+                <blockquote>
+                    A mathematician is one to whom <em>that</em> is as obvious as that twice two makes four is to you. Liouville was a mathematician.
+                    <br/>&mdash; Lord Kelvin (a physicist)
+                </blockquote>
+            </section>
+        </main>
     </body>
 </html>

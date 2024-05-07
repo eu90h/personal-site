@@ -4,6 +4,13 @@
     <link>https://eu90h.com</link>
     <description>I write about Linux, programming, and mathematics.</description>
     <item>
+      <title>Normalizing the Gaussian Integral: The Single-Variable Case</title>
+      <link>https://eu90h.com/normalizing-gaussian-integral.html</link>
+      <description>A brief note showing how to compute a 1D Gaussian integral.</description>
+      <pubDate>2024-05-03</pubDate>
+      <author>Stefan</author>
+    </item>
+    <item>
       <title>The Prosecutor's Fallacy</title>
       <link>https://eu90h.com/prosecutors-fallacy.html</link>
       <description>A short exposition of the prosecutor's fallacy.</description>

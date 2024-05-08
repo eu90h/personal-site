@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Laplace's Integration Method</title>
+        <link rel="canonical" href="https://eu90h.com/laplaces-method.html" />
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <link rel="stylesheet" href="https://unpkg.com/normalize.css">
+        <link rel="stylesheet" href="https://unpkg.com/concrete.css">
+    </head>
+    <body>
+        <main>
+            <section>
+                <h1>Laplace's Integration Method</h1>
+                <p>
+                    Suppose we want to compute an integral of the form
+                    $$
+                    \int_a^b f(x) \exp(-\lambda g(x))dx,
+                    $$
+                    as \(\lambda\rightarrow\infty\), where
+                    <ul>
+                      
+                        <li>\(f(x)\) is at least \(C^2\) (i.e. \(f\) continuous and twice-differentiable, with each derivative continuous),</li>
+                        <li>\(g(x)\) is also at least \(C^2\),</li>
+                        <li>\(g(x)\) attains a (unique) local minimum at some point \(x^*\in(a,b)\),</li>
+                    </ul>
+                </p>
+                <p>
+                    The core concept here is that, when \(\lambda\) is very, very big, the only place in \((a,b)\) where the integral doesn't vanish is inside some (small)
+                    neighborhood of the critical point \(x^*\).
+                </p>
+            </section>
+            <section>
+                <p>
+                    We can Taylor expand both \(f\) and \(g\) in a \(\delta\)-neighborhood about the point \(x=x^*\), which gives
+                    $$
+                    \begin{equation}
+                    \begin{aligned}
+                    I(\lambda) &= \int_a^b f(x) \exp(-\lambda g(x))dx \\
+                               &\approx \int_{x^* - \delta}^{x^* + \delta} \left(f(x^*) + (x-x^*)f^\prime(x^*) + \dots\right)\exp{\left( -\lambda(g(x^*) + (x-x^*)g^\prime(x^*) + \dots) \right)}dx \\
+                    \end{aligned}
+                    \end{equation}
+                    $$
+                </p>
+                <p>
+                    Remember that \(x^*\) is a local minimum, so we have \(g^\prime(x^*) = 0\) and \(g^{\prime\prime}(x^*)>0\). We may now approximate \(I\) as
+                    $$
+                    \begin{equation}
+                    \begin{aligned}
+                    I(\lambda) &\approx \exp{\left(-\lambda g(x^*)\right)}\int_{x^* - \delta}^{x^* + \delta} \left(f(x^*) + (x-x^*)f^\prime(x^*) + \dots\right)\exp{\left( -\lambda(x-x^*)g^\prime(x^*) + \dots \right)}dx \\
+                               &= \exp{\left(-\lambda g(x^*)\right)}\left[h(x^*)\int_{x^* - \delta}^{x^* + \delta}\exp{\left(-\frac{\lambda}{2}g^{\prime\prime}(x^*)(x-x^*)^2\right)dx} + h^\prime(x^*)\int_{x^* - \delta}^{x^* + \delta}(x-x^*)\exp{\left(-\frac{\lambda}{2}g^{\prime\prime}(x^*)(x-x^*)^2\right)dx}  \right]
+                    \end{aligned}
+                    \end{equation}
+                    $$
+                </p>
+            </section>
+            <section>
+                <p>
+                    Let's take a look at the took integrals on the right-hand side. First we have
+                    $$
+                    \int_{x^* - \delta}^{x^* + \delta}\exp{\left(-\frac{\lambda}{2}g^{\prime\prime}(x^*)(x-x^*)^2\right)dx}
+                    $$
+                    If we squint, we can recognize this as a Gaussian integral:
+                    $$
+                    \begin{equation}
+                    \begin{aligned}
+                    \int_{x^* - \delta}^{x^* + \delta}\exp{\left(-\frac{\lambda}{2}g^{\prime\prime}(x^*)(x-x^*)^2\right)dx} 
+                    &= \int_{x^* - \delta}^{x^* + \delta}\exp{\left(-\frac{1}{2}\left[\frac{x-x^*}{\sqrt{\frac{1}{\lambda g^{\prime\prime}(x^*)}}}\right]^2\right)dx} \\
+                    &\approx \int_{-\infty}^{\infty}\exp{\left(-\frac{1}{2}\left[\frac{x-x^*}{\sqrt{\frac{1}{\lambda g^{\prime\prime}(x^*)}}}\right]^2\right)dx} \\
+                    &= \sqrt{\frac{2\pi}{\lambda g^{\prime\prime}(x^*)}}
+                    \end{aligned}
+                    \end{equation}
+                    $$
+                </p>
+                <p>
+                    The second integral now makes more sense in light of the first one:
+                    $$
+                    \begin{equation}
+                    \begin{aligned}
+                    \int_{x^* - \delta}^{x^* + \delta}(x-x^*)\exp{\left(-\frac{\lambda}{2}g^{\prime\prime}(x^*)(x-x^*)^2\right)dx}
+                    &\approx \int_{-\infty}^{\infty}(x-x^*)\exp{\left(-\frac{\lambda}{2}g^{\prime\prime}(x^*)(x-x^*)^2\right)dx} \\
+                    &= \text{E}\left[x-x^*\right] \\
+                    &= 0
+                    \end{aligned}
+                    \end{equation}
+                    $$
+                </p>
+                <p>
+                    The change of limits of integration can seem a bit shady and deserves discussion. The approximation
+                    $$
+                    \int_{x^* - \delta}^{x^* + \delta}\exp{\left(-\frac{1}{2}\left[\frac{x-x^*}{\sqrt{\frac{1}{\lambda g^{\prime\prime}(x^*)}}}\right]^2\right)dx} \\
+                    \approx \int_{-\infty}^{\infty}\exp{\left(-\frac{1}{2}\left[\frac{x-x^*}{\sqrt{\frac{1}{\lambda g^{\prime\prime}(x^*)}}}\right]^2\right)dx} \\
+                    $$
+                    relies on the bulk of the contributions of this integral lying inside the \(\delta\)-neighborhood around the critical point \(x^*\). As the parameter \(\lambda\rightarrow\infty\),
+                    we should see that the integrand becomes even more concentrated around the critical point, increasing the accuracy of the approximation.
+                </p>
+            </section>
+            <section>
+                <p>
+                    Now we can put all this together as
+                    $$
+                    \begin{equation}
+                    \begin{aligned}
+                    I(\lambda) \rightarrow \left({\frac{2\pi}{\lambda g^{\prime\prime}(x^*)}}\right)^{1/2}\,\,\frac{h(x^*)}{e^{\lambda g(x^*)}}
+                    \end{aligned}
+                    \end{equation}
+                    $$
+                    as \(\lambda\rightarrow\infty\).<br/>
+                    Q.E.D.
+                </p>
+                <p>
+                    This remarkable result is apparently due to Laplace in 1774, introduced to approximate integrals arising in connection with statistical inference!
+                </p>
+            </section>
+        </main>
+    </body>
+</html>

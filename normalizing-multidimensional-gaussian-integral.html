@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Normalizing the Gaussian Integral: The Multivariate Case</title>
+        <link rel="canonical" href="https://eu90h.com/normalizing-multidimensional-gaussian-integral.html" />
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <link rel="stylesheet" href="https://unpkg.com/normalize.css">
+        <link rel="stylesheet" href="https://unpkg.com/concrete.css">
+    </head>
+    <body>
+        <main>
+            <section>
+                <h1>Normalizing the Gaussian Integral: The Multivariate Case</h1>
+                <p>
+                    The goal here is to compute the integral
+                    $$
+                    Z = \int_{-\infty}^{\infty}e^{-\frac{1}{2}(\vec{x} - \vec{\mu})^T\Sigma^{-1}(\vec{x} - \vec{\mu})}d\vec{x}
+                    $$
+                    where \(\vec{\mu}=\left(E\left[X_1\right],\,E\left[X_2\right],\,\dots\,,\,E\left[X_d\right]\right)\) is the vector of means and \(\Sigma\) is the covariance matrix
+                    $$
+                    \begin{bmatrix}
+                    \text{Var}[X_1] & \text{Cov}[X_1, X_2] & \dots & \text{Cov}[X_1, X_d] \\
+                    \text{Cov}[X_2, X_1] & \text{Var}[X_2] & \dots & \text{Cov}[X_2, X_d] \\
+                    \vdots &  \vdots & \ddots & \vdots \\
+                    \text{Cov}[X_d, X_1] & \dots & \dots & \text{Var}[X_d]
+                    \end{bmatrix}
+                    $$
+                </p>
+            </section>
+            <section>
+                <p>
+                   Since the covariance matrix is a real symmetric matrix, we have its <em>eigendecomposition</em>
+                   $$
+                    \Sigma = Q\Lambda Q^T
+                   $$
+                   where \(\Lambda\) is a diagonal matrix with real-valued eigenvalues \(\lambda_k\) of \(\Sigma\) and \(Q\) is a matrix whose column vectors are the eigenvectors of \(\Sigma\).
+                </p>
+                <p>
+                    Since \(\Sigma\) is positive-definite, we also have the inequality
+                    $$
+                    \lambda_k > 0
+                    $$
+                    for all eigenvalues \(\lambda_k\).
+                </p>
+                <p>
+                    We will make use of this outer product expansion of \(\Sigma\):
+                    $$
+                    \Sigma = \sum_{i=1}^n\lambda_i q_i q_i^T,
+                    $$
+                    where \(q_i\) is the \(i\)-th column vector of \(Q\). This expansion follows 
+                    directly from the orthogonality of the columns of \(Q\): \(q_i^T q_j = 1\) only if \(i = j\), otherwise  \(q_i^T q_j = 0\). This means that
+                    $$
+                    Q^TQ = I
+                    $$
+                    so \(Q^{-1} = Q^T\).
+                </p>
+                <p>
+                    We now have a very nice formula for the inverse:
+                    $$
+                    \begin{equation}
+                    \begin{aligned}
+                    \Sigma^{-1} &= (Q\Lambda Q^T)^{-1} \\
+                    &= (Q^T)^{-1}\Lambda^{-1}Q^{-1} \\
+                    &= Q\Lambda^{-1}Q^T,
+                    \end{aligned}
+                    \end{equation}
+                    $$
+                    where
+                    $$
+                    \Lambda^{-1} = \begin{bmatrix}
+                    \lambda_1^{-1} & 0 & \dots & 0 \\
+                    0 & \lambda_2^{-1} & \dots & 0 \\
+                    \vdots &  \vdots & \ddots & \vdots \\
+                    0 & \dots & \dots & \lambda_n^{-1}
+                    \end{bmatrix}
+                    $$
+                </p>
+                <p>
+                    This immediately gives us the inverse expansion
+                    $$
+                    \Sigma^{-1} = \sum_{i=1}^n\lambda_i^{-1} q_i q_i^T.
+                    $$
+                </p>
+            </section>
+            <sections>
+                <p>
+                    Let's return to the exponent in the integrand,
+                    $$
+                    \begin{equation}
+                    \begin{aligned}
+                    (x - \mu)^T\Sigma^{-1}(x - \mu) &= (x-\mu)^TQ\Lambda^{-1/2}\Lambda^{-1/2}Q^T(x-\mu)\\
+                    &= (\Lambda^{-1/2}Q^T(x-\mu))^T \Lambda^{-1/2}Q^T(x-\mu)\\
+                    &= y^Ty
+                    \end{aligned}
+                    \end{equation}
+                    $$
+                    where \(y = \Lambda^{-1/2} Q^T(x-\mu)\).
+                </p>
+                <p>
+                   Notice that \(\Lambda^{-k}\) simply scales each component of \(y\), so 
+                   $$
+                    \frac{1}{2}y^Ty = \sum_{i=1}^n \frac{1}{2\lambda^{1/2}_i}y_i^2
+                   $$
+                </p>
+                <p>
+                    The coordinate transformation \(y=Q^T(x-\mu)\) has inverse \(x=\mu + Qy\).
+                    The determinant of the Jacobian of this transformation is \(\det\Lambda ^{1/2}=\sqrt{\prod_i\lambda_i}>0\).
+                </p>
+                <p>
+                   Now we can see this integral as an n-fold computation of single-variable Gaussian integrals:
+                    $$
+                    \begin{equation}
+                    \begin{aligned}
+                    Z &= \int_{-\infty}^{\infty}e^{-\frac{1}{2}(x - \mu)^T\Sigma^{-1}(x - \mu)}dx \\
+                    &= \sqrt{\prod_i\lambda_i}\int_{-\infty}^{\infty}\dots\int_{-\infty}^{\infty}\exp({-\sum_{i=1}^n \frac{1}{2\lambda_i}y_i^2})dy_1\dots dy_n
+                    \\ &= \sqrt{\prod_i\lambda_i}\int_{-\infty}^{\infty}\dots\int_{-\infty}^{\infty}\prod_{i=1}^n\exp({-\frac{1}{2\lambda_i}y_i^2})dy_1\dots dy_n
+                    \\ &= \sqrt{(2\pi)^n\prod_i\lambda_i} = \left[(2\pi)^n\det\Sigma\right]^{1/2}
+                    \end{aligned}
+                    \end{equation}
+                    $$
+                </p>
+            </sections>
+            <section>
+                <p>All of this to say,
+                    $$
+                   \frac{1}{ \sqrt{(2\pi)^n\det\Sigma}} \int_{-\infty}^{\infty}e^{-\frac{1}{2}(x - \mu)^T\Sigma^{-1}(x - \mu)}dx = 1
+                    $$
+                </p>
+                $$\square$$
+            </section>
+            <footer>
+                <a href="index.html">home</a>
+                <a href="about.html">about</a>
+            </footer>
+        </main>
+    </body>
+</html>

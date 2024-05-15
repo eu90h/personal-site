@@ -92,23 +92,17 @@
                     $$
                     \begin{equation}
                     \begin{aligned}
-                    (x - \mu)^T\Sigma^{-1}(x - \mu) &= (x-\mu)^TQ\Lambda^{-1/2}\Lambda^{-1/2}Q^T(x-\mu)\\
-                    &= (\Lambda^{-1/2}Q^T(x-\mu))^T \Lambda^{-1/2}Q^T(x-\mu)\\
-                    &= y^Ty
+                    (x - \mu)^T\Sigma^{-1}(x - \mu) &= (x-\mu)^T\left[\sum_{i=1}^n\lambda^{-1}q_iq_i^T\right](x-\mu)\\
+                    &= \sum_{i=1}^n(x-\mu)^T\lambda^{-1}q_iq_i^T(x-\mu)\\
+                    &= \sum_{i=1}^n\frac{y_i^2}{2\lambda_i}
                     \end{aligned}
                     \end{equation}
                     $$
-                    where \(y = \Lambda^{-1/2} Q^T(x-\mu)\).
-                </p>
-                <p>
-                   Notice that \(\Lambda^{-k}\) simply scales each component of \(y\), so 
-                   $$
-                    \frac{1}{2}y^Ty = \sum_{i=1}^n \frac{1}{2\lambda^{1/2}_i}y_i^2
-                   $$
+                    where \(y =  Q^T(x-\mu)\).
                 </p>
                 <p>
                     The coordinate transformation \(y=Q^T(x-\mu)\) has inverse \(x=\mu + Qy\).
-                    The determinant of the Jacobian of this transformation is \(\det\Lambda ^{1/2}=\sqrt{\prod_i\lambda_i}>0\).
+                    The determinant of the Jacobian of this transformation is \(\det Q^T = \det Q = 1\).
                 </p>
                 <p>
                    Now we can see this integral as an n-fold computation of single-variable Gaussian integrals:
@@ -116,9 +110,9 @@
                     \begin{equation}
                     \begin{aligned}
                     Z &= \int_{-\infty}^{\infty}e^{-\frac{1}{2}(x - \mu)^T\Sigma^{-1}(x - \mu)}dx \\
-                    &= \sqrt{\prod_i\lambda_i}\int_{-\infty}^{\infty}\dots\int_{-\infty}^{\infty}\exp({-\sum_{i=1}^n \frac{1}{2\lambda_i}y_i^2})dy_1\dots dy_n
-                    \\ &= \sqrt{\prod_i\lambda_i}\int_{-\infty}^{\infty}\dots\int_{-\infty}^{\infty}\prod_{i=1}^n\exp({-\frac{1}{2\lambda_i}y_i^2})dy_1\dots dy_n
-                    \\ &= \sqrt{(2\pi)^n\prod_i\lambda_i} = \left[(2\pi)^n\det\Sigma\right]^{1/2}
+                    &= \int_{-\infty}^{\infty}\dots\int_{-\infty}^{\infty}\exp({-\sum_{i=1}^n \frac{1}{2\lambda_i}y_i^2})dy_1\dots dy_n
+                    \\ &= \prod_{i=1}^n\int_{-\infty}^{\infty}\exp({-\frac{1}{2\lambda_i}y_i^2})dy_i
+                    \\ &= \sqrt{\prod_{i=1}^n2\pi\lambda_i} = \left[(2\pi)^n\det\Sigma\right]^{1/2}
                     \end{aligned}
                     \end{equation}
                     $$

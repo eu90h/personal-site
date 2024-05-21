@@ -4,6 +4,13 @@
     <link>https://eu90h.com</link>
     <description>I write about Linux, programming, and mathematics.</description>
     <item>
+      <title>Laplace's Method of Integration</title>
+      <link>https://eu90h.com/laplaces-method.html</link>
+      <description>An informal derivation of Laplace's method.</description>
+      <pubDate>2024-05-08</pubDate>
+      <author>Stefan</author>
+    </item>
+    <item>
       <title>Normalizing the Gaussian Integral: The Single-Variable Case</title>
       <link>https://eu90h.com/normalizing-gaussian-integral.html</link>
       <description>A brief note showing how to compute a 1D Gaussian integral.</description>

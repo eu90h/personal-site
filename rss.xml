@@ -4,6 +4,13 @@
     <link>https://eu90h.com</link>
     <description>I write about Linux, programming, and mathematics.</description>
     <item>
+      <title>Normalizing the Gaussian Integral: The Multivariate Case</title>
+      <link>https://eu90h.com/normalizing-multidimensional-gaussian-integral.html</link>
+      <description>A note showing how to normalize an n-dimensional Gaussian integral.</description>
+      <pubDate>2024-05-18</pubDate>
+      <author>Stefan</author>
+    </item>
+    <item>
       <title>Laplace's Method of Integration</title>
       <link>https://eu90h.com/laplaces-method.html</link>
       <description>An informal derivation of Laplace's method.</description>

@@ -16,10 +16,10 @@
             <section>
                 <h1>Maximum Likelihood Estimation</h1>
                 <p>
-                    Maximum Likelihood Estimation (MLE) is a method for estimating the parameters of a statistical model.
+                    Maximum Likelihood Estimation (MLE) is a method for estimating the parameters of a statistical model from a set of data.
                     Suppose that we've collected a dataset \(\mathcal{D} = \{x_k\}_{k=1}^N\) and that we have good prior reason to suspect that the data is best modeled
                     by a particular family of probability distributions \(p(x|\theta)\) where \(\theta\) is that model's parameters.
-                    The act of choosing a particular value for \(\theta\) is called model selection.
+                    The act of choosing a particular value for \(\theta\) is called model selection, model fitting, or training.
                 </p>
                 <p>
                     Suppose we had a particular \(\theta\) value. Then the likelihood of the data, given the parameters, is given by \(p(\mathcal{D}|\theta) = p(x_1x_2\dots x_N|\theta)\).
@@ -41,8 +41,6 @@
                     $$
                     where the notation \(\ell_\mathcal{D}(\theta)\) emphasizes that the NLL is a function of the parameters with the data fixed beforehand. We'll use this as a score to rank the quality of models with respect to our datset.
                 </p>
-            </section>
-            <section>
                 <p>
                     Now let's maximize the NLL by taking the derivative and finding the critical points \(\theta^*\):
                     $$
@@ -55,6 +53,39 @@
                     $$
                     and then checking that the second derivative is negative there to ensure the point is indeed a maximum.
                 </p>
+            </section>
+            <section>
+                <p>
+                    It is not always so easy to determine a neat closed-form expression for the maximum likelihood estimate \(\hat\theta\).
+                    A prototypical example would be determining the <a href="https://utstat.toronto.edu/keith/papers/cauchymle.pdf">maximum likelihood estimator for the Cauchy distribution</a>.
+                    In these cases, we can numerically optimize the likelihood using something like the Newton-Raphson method.<br>
+                    A beautifully clear exposition of Newton's method can be found in the first chapter of the Structure and Interpretation of Computer Programs.<br>
+                </p>
+                <p>Alternative methods exist for estimation, such as the method of moments which is computationally simple and avoids the complexity of likelihood maximimization, but it has its own drawbacks (see [0, pg. 112-113, 4.4.1]).</p>
+            </section>
+            <section>
+                <p>
+                    An interesting twist on likelihood estimation is to add a penalization term to the negative log-likelihood:
+                    $$
+                    \mathcal{L}(\theta;\lambda) = \lambda C(\theta) - \sum_{k=1}^N\log p(x_k|\theta),
+                    $$
+                    where \(\lambda\geq 0\) is called the <em>regularization parameter</em> and \(C(\theta)\) is called the <em>complexity penalty</em>.
+                </p>
+                <p>
+                    Through appropriate choice of complexity penalty, by applying the above to a linear regression model we end up with weights
+                    $$
+                    \hat{w} = \text{argmin}_w \text{NLL}(w) + \lambda ||w||_2^2.
+                    $$
+                    The term \(\lambda ||w||_2^2=\sum_{k=1}^D w_k^2\) penalizes <em>large weight values</em>. This is known as <em>ridge regression</em>.
+                </p>
+            </section>
+            <section>
+                <h3>References</h3>
+                <ol>
+                    <li>[0] Murphy, K.P., Probabilistic Machine Learning, Vol. 1, 2nd ed., 2022</li>
+                    <li>[1] Knight, K., <a href="https://utstat.toronto.edu/keith/papers/cauchymle.pdf">The Newton-Raphson algorithm: Computing the MLE of the Cauchy distribution</a></li>
+                    <li>[2] Abelson, H., Sussman, G. <a href="https://web.mit.edu/6.001/6.037/sicp.pdf">The Structure and Interpretation of Computer Programs</a></li>
+                </ol>
             </section>
             <footer>
                 <a href="index.html">home</a>

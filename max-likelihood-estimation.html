@@ -35,14 +35,17 @@
                 </p>
                 <p>
                     The essence of the maximum likelihood method lies in the simple idea that we should choose our model parameter \(\theta\) to maximize the likelihood of the
-                    data that we've actually observed. In practice, we're going to maximize the <em>negative log-likelihood</em>,
+                    data that we've actually observed. In practice, we're going to minimize the <em>negative log-likelihood</em> (NLL),
                     $$
                     \ell_\mathcal{D}(\theta) = -\log p(\mathcal{D}|\theta) = -\sum_{k=1}^N\log{p(x_k|\theta)}
                     $$
                     where the notation \(\ell_\mathcal{D}(\theta)\) emphasizes that the NLL is a function of the parameters with the data fixed beforehand. We'll use this as a score to rank the quality of models with respect to our datset.
                 </p>
                 <p>
-                    Now let's maximize the NLL by taking the derivative and finding the critical points \(\theta^*\):
+                    Note that minimizing the negative log-likelihood is equivalent to maximizing the likelihood function.
+                </p>
+                <p>
+                    Now let's minimizing the NLL by taking the derivative and finding the critical points \(\theta^*\):
                     $$
                     \begin{equation}
                     \begin{aligned}
@@ -51,15 +54,15 @@
                     \end{aligned}
                     \end{equation}
                     $$
-                    and then checking that the second derivative is negative there to ensure the point is indeed a maximum.
+                    and then checking that the second derivative is positive there to ensure the point is indeed a minimum [3].
                 </p>
             </section>
             <section>
                 <p>
-                    It is not always so easy to determine a neat closed-form expression for the maximum likelihood estimate \(\hat\theta\).
+                    It is not always so easy to determine a neat closed-form expression for the maximum likelihood estimate \(\theta^*\).
                     A prototypical example would be determining the <a href="https://utstat.toronto.edu/keith/papers/cauchymle.pdf">maximum likelihood estimator for the Cauchy distribution</a>.
-                    In these cases, we can numerically optimize the likelihood using something like the Newton-Raphson method.<br>
-                    A beautifully clear exposition of Newton's method can be found in the first chapter of the Structure and Interpretation of Computer Programs.<br>
+                    In these cases, we can numerically optimize the likelihood using something like the Newton-Raphson method [1].<br>
+                    A beautifully clear exposition of Newton's method can be found in the first chapter of the Structure and Interpretation of Computer Programs [2].<br>
                 </p>
                 <p>Alternative methods exist for estimation, such as the method of moments which is computationally simple and avoids the complexity of likelihood maximimization, but it has its own drawbacks (see [0, pg. 112-113, 4.4.1]).</p>
             </section>
@@ -67,14 +70,14 @@
                 <p>
                     An interesting twist on likelihood estimation is to add a penalization term to the negative log-likelihood:
                     $$
-                    \mathcal{L}(\theta;\lambda) = \lambda C(\theta) - \sum_{k=1}^N\log p(x_k|\theta),
+                    \mathcal{L}(\theta;\lambda) = \lambda C(\theta) + \ell_\mathcal{D}(\theta) = \lambda C(\theta) - \sum_{k=1}^N\log p(x_k|\theta),
                     $$
                     where \(\lambda\geq 0\) is called the <em>regularization parameter</em> and \(C(\theta)\) is called the <em>complexity penalty</em>.
                 </p>
                 <p>
                     Through appropriate choice of complexity penalty, by applying the above to a linear regression model we end up with weights
                     $$
-                    \hat{w} = \text{argmin}_w \text{NLL}(w) + \lambda ||w||_2^2.
+                    w^* = \text{argmin}_w \ell_\mathcal{D}(w) + \lambda ||w||_2^2.
                     $$
                     The term \(\lambda ||w||_2^2=\sum_{k=1}^D w_k^2\) penalizes <em>large weight values</em>. This is known as <em>ridge regression</em>.
                 </p>
@@ -85,6 +88,7 @@
                     <li>[0] Murphy, K.P., Probabilistic Machine Learning, Vol. 1, 2nd ed., 2022</li>
                     <li>[1] Knight, K., <a href="https://utstat.toronto.edu/keith/papers/cauchymle.pdf">The Newton-Raphson algorithm: Computing the MLE of the Cauchy distribution</a></li>
                     <li>[2] Abelson, H., Sussman, G. <a href="https://web.mit.edu/6.001/6.037/sicp.pdf">The Structure and Interpretation of Computer Programs</a></li>
+                    <li>[3] Dawkins, P., <a href="https://tutorial.math.lamar.edu/classes/calci/shapeofgraphptii.aspx">Paul's Online Notes</a></li>
                 </ol>
             </section>
             <footer>

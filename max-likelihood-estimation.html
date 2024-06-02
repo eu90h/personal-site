@@ -45,7 +45,7 @@
                     Note that minimizing the negative log-likelihood is equivalent to maximizing the likelihood function.
                 </p>
                 <p>
-                    Now let's minimizing the NLL by taking the derivative and finding the critical points \(\theta^*\):
+                    Now let's minimize the NLL by taking the derivative and finding the critical points \(\theta^*\):
                     $$
                     \begin{equation}
                     \begin{aligned}
@@ -70,7 +70,7 @@
                 <p>
                     An interesting twist on likelihood estimation is to add a penalization term to the negative log-likelihood:
                     $$
-                    \mathcal{L}(\theta;\lambda) = \lambda C(\theta) + \ell_\mathcal{D}(\theta) = \lambda C(\theta) - \sum_{k=1}^N\log p(x_k|\theta),
+                    \mathcal{L}(\theta;\lambda) = \lambda C(\theta) + \ell_\mathcal{D}(\theta),
                     $$
                     where \(\lambda\geq 0\) is called the <em>regularization parameter</em> and \(C(\theta)\) is called the <em>complexity penalty</em>.
                 </p>
@@ -79,12 +79,12 @@
                     $$
                     w^* = \text{argmin}_w \ell_\mathcal{D}(w) + \lambda ||w||_2^2.
                     $$
-                    The term \(\lambda ||w||_2^2=\sum_{k=1}^D w_k^2\) penalizes <em>large weight values</em>. This is known as <em>ridge regression</em>.
+                    The term \(\lambda ||w||_2^2=\sum_{k=1}^D w_k^2\) penalizes <em>large weight values</em>. This is known as <em>ridge regression</em>. See [0, ch. 4] for more.
                 </p>
             </section>
             <section>
                 <h3>References</h3>
-                <ol>
+                <ul>
                     <li>[0] Murphy, K.P., Probabilistic Machine Learning, Vol. 1, 2nd ed., 2022</li>
                     <li>[1] Knight, K., <a href="https://utstat.toronto.edu/keith/papers/cauchymle.pdf">The Newton-Raphson algorithm: Computing the MLE of the Cauchy distribution</a></li>
                     <li>[2] Abelson, H., Sussman, G. <a href="https://web.mit.edu/6.001/6.037/sicp.pdf">The Structure and Interpretation of Computer Programs</a></li>

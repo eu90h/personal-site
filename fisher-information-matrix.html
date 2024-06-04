@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>The Fisher Information Matrix</title>
+        <link rel="canonical" href="https://eu90h.com/fisher-information-matrix.html" />
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <link rel="stylesheet" href="https://unpkg.com/normalize.css">
+        <link rel="stylesheet" href="https://unpkg.com/concrete.css">
+    </head>
+    <body>
+        <main>
+            <section>
+                <h1>The Fisher Information Matrix</h1>
+                <p>
+                    Consider the log-likelihood function
+                    $$
+                    \ell(\theta;x) = \log p(x;\theta),
+                    $$
+                    where \(p(x;\theta):\mathbb{R}\times\mathbb{R}^m\rightarrow\mathbb{R}\) is a family of probability distributions indexed by parameters \(\theta\in\mathbb{R}^m\).
+                </p>
+                <p>
+                    The gradient of the log-likelihood function with respect to the model parameters \(\theta\)
+                    is called the <em>score function</em>:
+                    $$
+                    s(\theta;x) = \nabla_\theta{\ell(\theta;x)}
+                    $$
+                    where \(\nabla_\theta\) emphasizes that we let \(\theta\) vary while holding \(x\) fixed.
+                </p>
+                
+            </section>
+            <section>
+                <p>With our score function, we'll now treat it as a statistic of our data set.
+                    We'll assume that our data is generated from the "true distribution" \(p(x;\theta^*)\)
+                    and we'll calculate the expectation:
+                    $$
+                    \begin{equation}
+                    \begin{aligned}
+                    \text{E}_X\left[s(\theta;x)\right] &= \text{E}_X\left[\nabla_\theta\log p(x;\theta)\right] \\
+                    &= \int_X\nabla_\theta\log p(x;\theta) p(x;\theta) dx.
+                    \end{aligned}
+                    \end{equation}
+                    $$
+
+                    Observe that
+                    $$
+                    \frac{\partial}{\partial\theta_i}\log p(x;\theta) = \frac{\partial_i\,p(x;\theta)}{p(x;\theta)}
+                    $$
+                    where \(\partial_i = {\partial}/{\partial\theta_i}\) denotes partial differentiation with respect to the i-th model parameter.
+                </p>
+                <p>
+                    From this, we get
+                    $$
+                    \begin{equation}
+                    \begin{aligned}
+                    \nabla_\theta\log p(x;\theta) p(x;\theta) &= \langle p(x;\theta)\partial_1\,\log p(x;\theta),\dots,p(x;\theta)\partial_m\,\log p(x;\theta)\rangle^T\\
+                    &= \langle \partial_1\,p,\dots,\partial_m\,p\rangle^T
+                    \end{aligned}
+                    \end{equation}
+                    $$
+                </p>
+                <p>
+                    Assuming the Leibniz integral rule holds, we can differentiate under the integral sign (or vice versa):
+                    $$
+                    \int_X\partial_i\,p(x;\theta)dx = \partial_i\int_X p(x;\theta) = \partial_i(1) = 0
+                    $$
+                    hence
+                    $$
+                    \text{E}_X\left[s(\theta;x)\right] = \int_X\nabla_\theta\log p(x;\theta) p(x;\theta) dx = \nabla_\theta \int_X p(x;\theta)dx= 0.
+                    $$
+                </p>
+            </section>
+            <section>
+                <p>So much for the mean. Consider now the covariance matrix
+                    $$
+s(\theta;x) s(\theta;x)^T = [\sigma_{ij}]
+                    $$
+                    (remember that \(s(\theta;x) = \nabla_\theta{\ell(\theta;x)}\) is a column vector), with \(ij\)-th entry given by
+                    $$
+                    \begin{equation}
+                    \begin{aligned}
+                    \sigma_{ij} &= \frac{1}{p(x;\theta)}\frac{\partial p(x;\theta)}{\partial\theta_i}\frac{1}{p(x;\theta)}\frac{\partial p(x;\theta)}{\partial\theta_j}\\
+                    &= \frac{\partial_i\,p\partial_j\,p}{p^2(x;\theta)}.
+                    \end{aligned}
+                    \end{equation}
+                    $$
+                </p>
+                <p>
+                    If we take the partial derivative wrt \(\theta_j\) of
+                    $$
+                    \int_X\partial_i\log p(x;\theta) p(x;\theta) dx = 0
+                    $$
+                    we find
+                    $$
+                    \begin{equation}
+                    \begin{aligned}
+                    \partial_j\int_X\partial_i\log p(x;\theta)p(x;\theta) dx &= \int_X\partial_j\left(\partial_i\log p(x;\theta) p(x;\theta)\right)dx\\
+                    \end{aligned}
+                    \end{equation}
+                    $$
+                    Applying the product rule to the integrand gives us
+                    $$
+                    \begin{equation}
+                    \begin{aligned}
+                    \int_X\left(\partial_j\partial_i\log{p}\right)p + \left(\partial_i\log{p}\right)\left(\partial_i p\right)\,dx= 0
+                    \end{aligned}
+                    \end{equation}
+                    $$
+                    
+                </p>
+                <p>
+                    So we now have an equality
+                    $$
+                    \begin{equation}
+                    \begin{aligned}
+                    \int_X\left(\partial_j\partial_i\log{p}\right)p\,dx &= -\int_X\left(\partial_i\log{p}\right)\left(\partial_i p\right)\,dx\\
+                    &= -\int_X\frac{\partial_i\,p\,\partial_j\,p}{p}dx \\
+                    &= -\int_X \sigma_{ij}pdx = -\text{E}_X\left[\sigma_{ij}\right] = \text{E}_X\left[H_{ij}\right]
+                    \end{aligned}
+                    \end{equation}
+                    $$
+                </p>
+            </section>
+            <section>
+                <h3>References</h3>
+                <ol>
+                    <li>[0] Shun-Ichi Amari, Hiroshi Nagaoka, Methods of Information Geometry
+                    </li>
+                </ol>
+            </section>
+            <footer>
+                <a href="index.html">home</a>
+                <a href="about.html">about</a>
+            </footer>
+        </main>
+    </body>
+</html>

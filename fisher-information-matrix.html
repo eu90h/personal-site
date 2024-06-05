@@ -122,6 +122,21 @@ s(\theta;x) s(\theta;x)^T = [\sigma_{ij}]
                     \end{aligned}
                     \end{equation}
                     $$
+                    where \(H\) is the Hessian matrix of the log-likelihood function
+                    $$
+                    \left[H\right]_{ij} = \partial_i\partial_j\log p(x;\theta) = \frac{\partial^2}{\partial\theta_i\partial\theta_j}\log p(x;\theta).
+                    $$
+                </p>
+                <p>
+                    The Hessian fulfils a role like the ordinary second derivative for single-variable functions, in particular it arises in generalizing the second-derivative test,
+                    acting as a measure of local curvature of the function, letting us know what type of critical point we're at (max, min, etc.).
+                </p>
+                <p>
+                    Therefore the expression
+                    $$
+                    \text{E}_X\left[\sigma_{ij}\right] = -\text{E}_X\left[H_{ij}\right]
+                    $$
+                    relates the covariances of model parameters to the local curvature of the log-likelihood function.
                 </p>
             </section>
             <section>

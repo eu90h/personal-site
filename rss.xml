@@ -4,6 +4,20 @@
     <link>https://eu90h.com</link>
     <description>I write about Linux, programming, and mathematics.</description>
     <item>
+      <title>The Fisher Information Matrix</title>
+      <link>https://eu90h.com/fisher-information-matrix.html</link>
+      <description>Connecting the Fisher Information Matrix to the Hessian of the log-likelihood.</description>
+      <pubDate>2024-06-05</pubDate>
+      <author>Stefan</author>
+    </item>
+    <item>
+      <title>Maximum Likelihood Estimation: A Brief Outline</title>
+      <link>https://eu90h.com/max-likelihood-estimation.html</link>
+      <description>A very brief note outlining the idea of maximum likelihood.</description>
+      <pubDate>2024-06-02</pubDate>
+      <author>Stefan</author>
+    </item>
+    <item>
       <title>Normalizing the Gaussian Integral: The Multivariate Case</title>
       <link>https://eu90h.com/normalizing-multidimensional-gaussian-integral.html</link>
       <description>A note showing how to normalize an n-dimensional Gaussian integral.</description>

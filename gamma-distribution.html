@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>The Gamma Distribution</title>
+        <link rel="canonical" href="https://eu90h.com/gamma-distribution.html" />
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <link rel="stylesheet" href="https://unpkg.com/normalize.css">
+        <link rel="stylesheet" href="https://unpkg.com/concrete.css">
+    </head>
+    <body>
+        <main>
+            <section>
+                <h1>The Gamma Distribution</h1>
+                <p>
+                    The gamma function was developed by Euler as a generalization of the factorial function. It is defined by the integral
+                    $$
+                    \Gamma(x) = \int_0^\infty t^{x-1} e^{-t} dt,
+                    $$
+                    for real numbers \(x>0\). This is sometimes called <em>Euler's integral of the second kind</em>.<br/>
+                    The gamma function can be further extended to cover the \(x<0\) case. See the book by Emil Artin [0] for more information.
+                </p>
+                <p>
+                    This integral arose from the observation that
+                    $$
+                    n! = \int_0^\infty t^n e^{-t} dt,
+                    $$
+                    which can be shown using repeated application of integration by parts.
+                </p>
+                <p>
+                    The <em>gamma distribution</em> is defined by
+                    $$
+                    \text{Gamma}(x|\text{shape}=a,\text{rate}=b)=\frac{b^a}{\Gamma(a)}x^{a-1}e^{-bx},
+                    $$
+                    for \(x>0,\,a>0,\,b>0\).
+                </p>
+                
+                
+            </section>
+            <section>
+                <p>
+                    Observe the relation between the integrand in the first equation and the gamma probability distribution function (PDF):
+                    $$
+                    \frac{b^a}{\Gamma(a)}x^{a-1}e^{-bx} = \frac{b}{\Gamma(a)} (bx)^{a-1} e^{-bx}
+                    $$
+                </p>
+                <p>
+                    From this we can find the first moment using the substitution \(t=bx\) like so
+                    $$
+                    \text{E}\left[x\right] = \int_0^\infty \frac{b^a}{\Gamma(a)}x^{a}e^{-bx} dx = \frac{1}{b\Gamma(a)}\int_0^\infty t^{a} e^{-t} dt = \frac{a}{b\Gamma(a)} = a/b
+                    $$
+                </p>
+            </section>
+            <section>
+                <p>
+                    The variance is given by
+                    $$
+                    \text{Var}\left[x\right] = \text{E}\left[x^2\right] - \text{E}\left[x\right]^2.
+                    $$
+The first term is found to be
+                    $$
+                    \begin{equation}
+                    \begin{aligned}
+                    
+                    \text{E}\left[x^2\right] = \int_0^\infty \frac{b^a}{\Gamma(a)}x^{a+1}e^{-bx} dx &= \frac{b^2}{b^2}\text{E}\left[x^2\right] \\
+                    &= \int_0^\infty \frac{b^{a+2}}{b^2 \Gamma(a)}x^{a+1}e^{-bx} dx \\
+                    &= \frac{\Gamma(a+2)}{b^2\Gamma(a)} = \frac{a^2 + a}{b^2}
+                    \end{aligned}
+                    \end{equation}
+                    $$
+and the second is \(
+\text{E}\left[x\right]^2 = {a^2}/{b^2}.
+\)
+
+Therefore $$
+\text{Var}\left[x\right] = \frac{a}{b^2}
+$$
+                </p>
+            </section>
+            <section>
+                <h3>References</h3>
+                <ul>
+                    <li>[0] Artin, E., The Gamma Function, 1964</li>
+                </ul>
+            </section>
+            <footer>
+                <a href="index.html">home</a>
+                <a href="about.html">about</a>
+            </footer>
+        </main>
+    </body>
+</html>

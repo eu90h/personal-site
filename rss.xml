@@ -4,6 +4,13 @@
     <link>https://eu90h.com</link>
     <description>I write about Linux, programming, and mathematics.</description>
     <item>
+      <title>The Gamma Distribution</title>
+      <link>https://eu90h.com/gamma-distribution.html</link>
+      <description>A short note on the Gamma distribution.</description>
+      <pubDate>2024-06-10</pubDate>
+      <author>Stefan</author>
+    </item>
+    <item>
       <title>The Fisher Information Matrix</title>
       <link>https://eu90h.com/fisher-information-matrix.html</link>
       <description>Connecting the Fisher Information Matrix to the Hessian of the log-likelihood.</description>

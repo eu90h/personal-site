@@ -30,6 +30,10 @@
                 <p>
                     The definition of point estimators (hereafter, simply <em>estimators</em>) is pretty general -- it doesn't say the estimator has to be good at estimation, just that it's a function of the data. 
                 </p>
+                <p>
+                    This motivates the idea of a consistent estimator. An estimator is <em>consistent</em> if it converges
+                    probabilistically to the true value of the parameter we're estimating.
+                </p>
                 <p>We define the <em>bias</em> of an estimator \(\hat\theta=T(X_1,\dots,X_N)\) for parameter \(\theta\) to be the difference between the expected estimated value and the population distribution's "true" parameter \(\theta\),
                     $$
                     \text{bias}(\hat\theta) = E[\hat\theta] - \theta.
@@ -57,10 +61,16 @@
 p(\hat\theta(\tilde{\mathcal{D}})=\theta|\tilde{\mathcal{D}}\sim\theta^*)\approx\frac{1}{N_d}\sum^{N_d}_{k=1}\mathbb{I}[\theta=\hat\theta(\tilde{\mathcal{D}}^{(k)})]
                     $$
                     approaches equality.
-
                 </p>
             </section>
             <section>
+                <p>
+                    We say that the parameters \(\theta\) of a probability distribution function \(p\) are <em>identifiable</em>
+                    if the pdf \(p(x|\theta)\) is injective as a function of \(\theta\). That is, \(p\) must satisfy
+                    $$
+                        p(\mathcal{D}|\theta_0) = p(\mathcal{D}|\theta_1) \implies \theta_0 = \theta_1
+                    $$
+                </p>
                 <p>
                     The maximum likelihood estimator (MLE), given by
                     $$
@@ -69,7 +79,7 @@ p(\hat\theta(\tilde{\mathcal{D}})=\theta|\tilde{\mathcal{D}}\sim\theta^*)\approx
                     has a sampling distribution that is approximately normal in the large-sample limit.
                 </p>
                 <p>
-                    In particular, we have the theorem [0, pg. 151]:<br>
+                    We have the theorem [0, pg. 151]:<br>
                     if the parameters of the population distribution are identifiable, then
                     $$
 p(\hat\theta(\mathcal{D}) = \theta|\mathcal{D}\sim\theta^*)\rightarrow N(\theta|\theta^*, \frac{1}{N}({\text{I}(\theta)})^{-1}),
@@ -79,14 +89,11 @@ p(\hat\theta(\mathcal{D}) = \theta|\mathcal{D}\sim\theta^*)\rightarrow N(\theta|
             </section>
             <section>
                 <p>
-                    We now arrive at the main topic: the bias-variance tradeoff. Consider the mean-squared-error of some estimator \(\hat\theta\), assuming \(\theta\) is the true parameter. A little algebra shows that
+                    Finally, consider the mean-squared-error of some estimator \(\hat\theta\), assuming \(\theta\) is the true parameter. A little algebra shows that
                     $$
                     E[(\hat\theta - \theta^*)^2] = \text{bias}^2(\hat\theta) + V[\hat\theta]
                     $$
-                    where \(V(\hat\theta)\) is the variance of the estimator.
-                </p>
-                <p>
-                    This result shows that we can reduce the variance of our estimations by <em>increasing our bias</em>. So unbiased estimators are not universally superior, at least when we aim to minimize the mean-squared-error.
+                    where \(V(\hat\theta)\) is the variance of the estimator. This is the <em>bias-variance tradeoff</em>.
                 </p>
             </section>
             <section>

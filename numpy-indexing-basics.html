@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Numpy Indexing Basics</title>
+        <link rel="canonical" href="https://eu90h.com/numpy-indexing-basics.html" />
+        <link rel="stylesheet" href="https://unpkg.com/normalize.css">
+        <link rel="stylesheet" href="https://unpkg.com/concrete.css">
+        <style>
+            code {
+                white-space: pre;
+            }
+
+            code.inline {
+                white-space: normal;
+            }
+        </style>
+    </head>
+    <body>
+        <main>
+            <section>
+                <h1>Basic Indexing in Numpy</h1>
+                <p>
+                Given its ubiquity in the world of scientific computing and machine learning, it's worth spending some time to get to know numpy a bit better.
+                I've been enjoying <a href="http://www.labri.fr/perso/nrougier">Nicolas P. Rougier's</a> interactive collection of exercises
+                 called <a href="https://github.com/rougier/numpy-100">the numpy 100<a>. He also wrote a short book
+                <a href="https://www.labri.fr/perso/nrougier/from-python-to-numpy/">From Python to Numpy</a> meant to act as a second course, after one
+                is familiar with the basics of numpy.
+                </p>
+                <p>
+                    In this short note we'll look at exercise 19 where we are tasked with creating a matrix that has a checkerboard pattern.
+                    This exercise is a good illustration of basic indexing in numpy. Let's take a look.
+                </p>
+                <p>
+                <b>Problem 19.</b> <em>Create an 8x8 matrix and fill it with a checkerboard pattern.</em>
+                </p>
+                <p>
+            <section>
+                <h2>Indexing and Slices in Python3</h2>
+                Let's step back a little and look at standard Python3. The expression <code>x[k]</code>
+                is called a subscription: we're accessing the k-th element of the collection x. This is analogous to, i.e., subscripting a vector in
+                mathematics.
+                </p>
+                <p>
+                Python also has <em>slices</em>. According to the Python3 glossary,
+                <blockquote>
+                    An object usually containing a portion of a sequence. A slice is created using the subscript notation, [] with colons
+                    between numbers when several are given, such as in variable_name[1:3:5]. The brack (subscript) notation uses slice
+                    objects internally.
+                </blockquote>
+                The builtin function <code>slice</code> can be used to create a slice. In fact, the notation <code>1:3:5</code> (called extended indexing syntax) is syntactic sugar
+                for the expression <code>slice(1,3,5)</code>.
+                </p>
+                <p>
+                According to the Python3 language reference, the slice function returns a slice object that represents
+                <blockquote>
+                    the set of indices specified by range(start, stop, step). The start and step arguments default to None.
+                </blockquote>
+                The step argument for slicing was adding way back in Python 1.4 "at the request of the developers of Numerical Python, which uses the third argument [step] extensively." The patch adding this was contributed by Michael Hudson.
+                <br>
+                The reference also notes that
+                <blockquote>
+                    Slice objects have read-only data attributes start, stop, and step which merely return the argument values (or their default).
+                    They have no other explicit functionality; however, they are used by NumPy and other third-party packages.
+                </blockquote>
+                </p>
+            </section>
+            <section>
+            <p>
+              Let's gain some (standard Python3) slice experience. Suppose we have a sequence x, say <code>x = [1,2,3,4,5,6,7,8]</code>, and we 
+            want all the odd-indexed elements. This means we want to start at index 1, the lowest odd index, and get the next element at 3, and so on.
+            This precisely corresponds to <code>range(1,len(x),2)</code>, or more simply, <code>x[1::2]</code>.
+            </p>
+            <p>
+            Now what if we want to set the elements of x to zero at every even index? It's natural to attempt the following:
+            <br><code>
+x[::2] = 0 
+            </code><br>
+            but this throws an exception: <code>TypeError: must assign iterable to extended slice</code><br>
+            so we have to do something like
+            <br><code>
+x[::2] = [0 for _ in range(len(x[::2]))]
+            </code>
+            <br>
+            Note that the length of the sequence on the left-hand side must equal the length of the right-hand sequence. This is specifically a
+            quirk of extended slices -- assignments to regular slices can change the sequence's length:
+            <br><code>
+a = list(range(3))
+a[1:3] = [4,5,6]
+            </code><br>
+            which gives <code>[0,4,5,6]</code> as the value of <code>a</code>.
+            </p>
+            <p>
+            One last note about normal Python's subscripting and slicing: they support negatives. If we have a sequence x and we want the final
+            element, we can index it as <code>x[-1]</code>
+            or, if we want the penultimate element <code>x[-2]</code>.
+            </p>
+            <p>
+            If we have a sequence x and we want to reverse it,
+            we can simply use an extended slice with a -1 step-size: <code>x[::-1]</code>
+            </p>
+            </section>
+            <section>
+            <h2>Indexing in Numpy</h2>
+            <p>Now let's take a look at numpy. There's a <a href="https://numpy.org/doc/stable/user/basics.indexing.html">whole section</a> of the documentation devoted just to indexing.
+            The main object of numpy is the ndarray, representing an n-dimensional array -- i.e. multidimensional containers whose elements have the same type and size.
+            An ndarray is indexed just like a python list or other container: <code>array[index]</code>.
+            </p>
+            <p>
+            One difference is in how multidimensional (nested) indexing works.
+            Whereas a nested list in python needs to be indexed like so <code>array[index1][index2]</code>, numpy ndarrays accept a tuple like so <code>ndarray[(1,3)]</code>
+            or, equivalently, we can drop the parentheses for clarity, as in <code>ndarray[1,3]</code>.
+            </p>
+            <p>
+            Slicing is also supported: <code>ndarray[start:stop:step]</code>.
+            </p>
+            </section>
+            <section>
+            <p>Now we can solve exercise 19 by taking slices and assigning to them. Values being assigned to indexed ndarrays
+            "must be shape consistent (the same shape or broadcastable to the shape the index produces)". This implies we can assign
+            a constant to a slice
+            <br><code>
+ndarray[start:stop:step] = const
+            </code><br>
+            which would throw an exception for a normal python container as we saw earlier.
+            </p>
+            <p>
+            Our checkerboard is an 8x8 matrix, which we can create with <code>board = np.zeros((8,8))</code>.
+            Observe that the slice <code>::2</code> produces all even indices, so <code>board[0,::2] = 1</code>
+            produces
+            <br><code>
+array([[1., 0., 1., 0., 1., 0., 1., 0.],
+       [0., 0., 0., 0., 0., 0., 0., 0.],
+       [0., 0., 0., 0., 0., 0., 0., 0.],
+       [0., 0., 0., 0., 0., 0., 0., 0.],
+       [0., 0., 0., 0., 0., 0., 0., 0.],
+       [0., 0., 0., 0., 0., 0., 0., 0.],
+       [0., 0., 0., 0., 0., 0., 0., 0.],
+       [0., 0., 0., 0., 0., 0., 0., 0.]])
+            </code><br>
+            We want this pattern on every even-indexed row, so we write <code>board[::2,::2] = 1</code>,
+            which gives
+            <br><code>
+array([[1., 0., 1., 0., 1., 0., 1., 0.],
+       [0., 0., 0., 0., 0., 0., 0., 0.],
+       [1., 0., 1., 0., 1., 0., 1., 0.],
+       [0., 0., 0., 0., 0., 0., 0., 0.],
+       [1., 0., 1., 0., 1., 0., 1., 0.],
+       [0., 0., 0., 0., 0., 0., 0., 0.],
+       [1., 0., 1., 0., 1., 0., 1., 0.],
+       [0., 0., 0., 0., 0., 0., 0., 0.]])
+            </code><br>
+            Now we want to do something similar, but for the odd columns of the odd rows, so we'll try <code> board[1::2, 1::2] = 1</code>,
+            which gives us the result we wanted:<br>
+            <code>
+array([[1., 0., 1., 0., 1., 0., 1., 0.],
+       [0., 1., 0., 1., 0., 1., 0., 1.],
+       [1., 0., 1., 0., 1., 0., 1., 0.],
+       [0., 1., 0., 1., 0., 1., 0., 1.],
+       [1., 0., 1., 0., 1., 0., 1., 0.],
+       [0., 1., 0., 1., 0., 1., 0., 1.],
+       [1., 0., 1., 0., 1., 0., 1., 0.],
+       [0., 1., 0., 1., 0., 1., 0., 1.]])
+            </code><br>
+            Incidentally we can save precious memory by setting the checkerboard ndarray's type to int.
+            </p>
+            </section>
+            <section>
+            <p>
+            So that's the elements of ndarray indexing. There's more to it than what's written above so be sure to dive into the references below to learn more.
+            </p>
+            </section>
+            <section>
+                <h3>References</h3>
+                <ol>
+                    <li><a href="https://github.com/rougier/numpy-100">Numpy 100</a></li>
+                    <li><a href="https://www.labri.fr/perso/nrougier/from-python-to-numpy">From Python to Numpy</a></li>
+                    <li><a href="https://numpy.org/doc/stable/user/basics.indexing.html">Numpy docs: indexing</a></li>
+                    <li><a href="https://numpy.org/doc/stable/reference/arrays.ndarray.html">Numpy docs: ndarray</a></li>
+                </ol>
+            </section>
+            <footer>
+                <a href="index.html">home</a>
+                <a href="about.html">about</a>
+            </footer>
+        </main>
+    </body>
+</html>

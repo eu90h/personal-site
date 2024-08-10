@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Heat</title>
+        <link rel="canonical" href="https://eu90h.com/diffusion.html" />
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <link rel="stylesheet" href="https://unpkg.com/normalize.css">
+        <link rel="stylesheet" href="https://unpkg.com/concrete.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+<!-- and it's easy to individually load additional languages -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js"></script>
+
+<script>hljs.highlightAll();</script>
+        <style>
+            code {
+                white-space: pre;
+            }
+
+            code.inline {
+                white-space: normal;
+            }
+        </style>
+    </head>
+    <body>
+        <main>
+            <section>
+            <h1>Heat</h1>
+            <p>
+                In 1807 Jean Baptiste Joseph Fourier presented a manuscript outlining the <em>heat equation</em> to the Institut de France:
+                $$
+                \frac{\partial u}{\partial t} = b\nabla^2 u
+                $$
+                This equation models the conduction of heat in a continuous medium.
+                
+                This equation looks a bit fearsome. Let's try approaching it from a computational angle.
+            </p>
+
+            <p>
+                We'll consider heat conduction on a two-dimensional rectangle. Think of the surface of
+                a metal sheet for instance. The function \(u(x,y,t)\) gives the temperature at the point \((x,y)\) at time \(t\).
+                The quantity \(\nabla^2 u(x,y,t)\) is called the <em>Laplacian</em> of \(u\). In our two-dimensional case, it is defined to be
+                $$
+                \nabla^2 u = \frac{\partial^2 u}{\partial x^2} + \frac{\partial^2 u}{\partial y^2} 
+                $$
+            </p>
+            </section>
+            <section>
+            <h3>Finite Difference Approximation</h3>
+                <p>
+                    Let's consider our first approximation scheme. Recall the definition of the derivative of a single-variable real function \(f(x)\)
+                    $$
+                    \frac{df}{dx} = \lim_{h\rightarrow 0} \frac{f(x+h) - f(x)}{h}
+                    $$
+                </p>
+                <p>
+                    This definition naturally suggests the following <em>finite difference approximation</em>
+                    $$
+                    \frac{df}{dx} \approx \frac{f(x+h)-f(x)}{h} 
+                    $$
+                    with the approximation increasing in quality as \(h\rightarrow 0\). This is known as a <em>forward difference</em> approximation
+                    for the derivative. For convenience, we write the forward difference as \(\Delta_{+x}f(x) := f(x+h) - f(x)\).
+                </p>
+                <p>
+                    Likewise we have <em>backward differences</em>
+                    $$
+                    \Delta_{-x}f(x) := f(x) -f(x-h)
+                    $$
+                    and also the <em>central difference</em>
+                    $$
+                    \delta_xf(x) := f(x+\frac{1}{2}h) - f(x-\frac{1}{2}h)
+                    $$
+                </p>
+            </section>
+            <section>
+                <p>
+                    Consider the second-order central difference
+                    $$
+\delta_x \delta_x v(x, t) = \delta_x v(x + \frac{1}{2}\Delta x, t) - \delta_x v(x-\frac{1}{2}\Delta x, t)
+$$
+where
+$$
+\begin{equation*}
+\begin{aligned}
+\delta_x v(x + \frac{1}{2}\Delta x, t) &= v(x + \frac{1}{2}\Delta x + \frac{1}{2}\Delta x, t) - \delta_x v(x + \frac{1}{2}\Delta x -\frac{1}{2}\Delta x, t)\\
+&= v(x + \Delta x, t) - v(x, t)
+\end{aligned}
+\end{equation*}
+$$
+and
+$$
+\begin{equation*}
+\begin{aligned}
+\delta_x v(x - \frac{1}{2}\Delta x, t) &= v(x - \frac{1}{2}\Delta x + \frac{1}{2}\Delta x, t) - \delta_x v(x - \frac{1}{2}\Delta x -\frac{1}{2}\Delta x, t)\\
+&= v(x, t) - v(x - \Delta x, t)
+\end{aligned}
+\end{equation*}
+$$
+Putting this together we find
+$$
+\delta_x \delta_x v(x, t) = \delta_x^2 v(x,t) = v(x + \Delta x, t) - 2v(x, t) + v(x - \Delta x, t)
+$$
+thus we've obtained a finite difference approximation to the second derivative.               
+            </p>
+            </section>
+            <section>
+            <h3>Approximating the Heat Equation</h3>
+            <p>
+                We can now use our approximations gained above to get
+                $$
+                \frac{\partial u}{\partial t} = b\nabla^2 u \approx b\frac{u(x+h, y, t) + u(x,y+h,t) +u(x,y-h,t) +u(x-h,y,t) - 4u(x,y,t)}{h^2}
+                $$
+                assuming that the step sizes are equal: \(\Delta x = \Delta y = h >0\)
+            </p>
+            <p>
+                Finally, upon forward differencing the temporal part, we obtain a one-step update equation:
+                $$
+                u(x, y, t+\Delta t) \approx u(x,y,t) + \frac{b\Delta t}{h^2}\left[u(x+h, y, t) + u(x,y+h,t) +u(x,y-h,t) +u(x-h,y,t) - 4u(x,y,t)\right]
+                $$
+            </p>
+            </section>
+            <section>
+                <p>
+                    Now we're ready to write some code. I'd like to give credit to the <a href="https://mpcdf.pages.mpcdf.de/python-for-hpc/frontpage.html">Python for HPC</a> course by Sebastian Kehl, Sebastian Ohlmann, Klaus Reuter (MPCDF).
+                </p>
+                <p> The heart of the matter is computing the Laplacian, so we'll look at that first.    
+                    In particular let's look at a "naive" implementation, a sort-of first thought solution:
+                    <pre><code>
+def laplacian_naive(G):
+    G = np.pad(G, 1, 'constant')
+    L = np.empty_like(G)
+    for x in range(1, G.shape[0]-1):
+        for y in range(1, G.shape[1]-1):
+            L[x, y] = G[x+1, y] + G[x-1, y] + G[x, y+1] + G[x, y-1] - 4.0 * G[x, y]
+    return L[1:-1, 1:-1]
+                    </code></pre>
+                    It creates a copy of the input grid <code>G</code> and iterates through the grid elements one <code>(x,y)</code> pair at a time while applying the approximation we derived above:
+                    $$
+                    \nabla^2 u(x,y) \approx u(x,y+h,t) +u(x,y-h,t) +u(x-h,y,t) - 4u(x,y,t)
+                    $$
+                    to compute the one-step evolution of <code>G</code> which is stored in the copy created at the start.
+                </p>
+            </section>
+            <section>
+                <p>Let's model the situation where heat is constantly provided at 3 of the 4 edges of the plate. We'll assume that the the temperature at these points is always at a fixed value.
+                    The following function is meant to accomplish this by setting the appropriate areas of the grid to some pre-determined value:
+                    <pre><code>
+def set_boundary_conditions(G):
+    G[0,2:-2] = 100.0
+    G[1:,0] = 50.0
+    G[-1, 2:-2] = 100.0
+                    </code></pre>
+                </p>
+                <p>
+                    We're now ready to simulate the system:
+                    <pre><code>
+N = 100
+dt = 1.0
+D = 0.1
+steps = 250
+U = np.zeros((N, N), dtype=np.float32)
+set_boundary_conditions(U)
+for _ in range(steps):
+    U += dt * D * laplacian_naive(U)
+    set_boundary_conditions(U)
+                    </code></pre>
+                </p>
+                <p>
+                    The grid can be visualized at the end with 
+                    <pre><code>
+def plot(U, vmax):
+    plt.clf()
+    plt.xlabel("x")
+    plt.ylabel("y")
+    plt.pcolormesh(U, cmap=plt.cm.jet, vmin=0.0, vmax=vmax)
+    plt.colorbar()
+    
+    return plt
+                    </code></pre>
+                    which should give us something like<br/><br/>
+                    <img src="images/heatdiffusion1.png"/>
+                </p>
+            </section>
+            <section>
+                <p>That's nice but it's slow. Consider the following solution based on numpy's <a href="">roll function</a>
+                <pre><code>
+def laplacian(G):
+    G = np.pad(G, 1, 'constant')
+    return (np.roll(G, 1, 0) + np.roll(G, -1, 0) + np.roll(G, 1, 1) + np.roll(G, -1, 1) - 4 * G)[1:-1,1:-1]
+                </code></pre>
+                The rolls produce shifted views of the grid that all us to perform <code>G[x+1, y] + G[x-1, y] + G[x, y+1] + G[x, y-1] - 4.0 * G[x, y]</code>
+                for multiple points on the grid in parallel. The zero padding added to the edges helps the temperature on the edges decay.
+                </p>
+            </section>
+            <section>
+                <h3>References</h3>
+                <ol>
+                    <li>Rougier, Nicolas P., <a href="https://www.labri.fr/perso/nrougier/from-python-to-numpy/">From Python to Numpy</a></li>
+                    <li>Morton, K.W., Mayers, D.F., Numerical Solution of Partial Differential Equations - An Introduction, Cambridge University Press, 2005</li>
+                </ol>
+            </section>
+            <footer>
+                <a href="index.html">home</a>
+                <a href="about.html">about</a>
+            </footer>
+        </main>
+    </body>
+</html>

@@ -1,0 +1,214 @@
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>The Gray-Scott Model</title>
+        <link rel="canonical" href="https://eu90h.com/gray-scott.html" />
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <link rel="stylesheet" href="https://unpkg.com/normalize.css">
+        <link rel="stylesheet" href="https://unpkg.com/concrete.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+<!-- and it's easy to individually load additional languages -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+
+<script>hljs.highlightAll();</script>
+        <style>
+            code {
+                white-space: pre;
+            }
+
+            code.inline {
+                white-space: normal;
+            }
+        </style>
+    </head>
+    <body>
+        <main>
+            <section>
+                <h3>The Gray-Scott Model of Autocatalytic Reactions</h3>
+                <p>
+                    An autocatalytic reaction, first conceived by the chemist Wilhelm Ostwald in the late 19th century, is a self-sustaining chemical reaction. In its simplest form we have
+                    a chemical reaction of the form \(A + X \rightarrow 2X \) where \(X\) is an "autocatalyst particle" and \(A\) is a "resource". This equation seems to imply that the 
+                    rate at which \(X\) particles are formed increases with time, since it's rate of production would depend on the concentration of \(X\) particles. Indeed, Ostwald himself
+                    defined an autocatalytic reaction as one that "shows an acceleration of the rate as a function of time."
+                </p>
+                <p>
+                    Consider the following reaction
+                    $$
+                    A + B \rightarrow 2B
+                    $$
+                    The <em>law of mass action</em> implies that the rate of the reaction is given by
+                    $$
+                    \frac{d\left[B\right]}{dt} = O(\left[A\right]\left[B\right]) = k\left[A\right]\left[B\right] 
+                    $$
+                    assuming that \(A+B\rightarrow 2B\) is an elementary reaction. The constant \(k\) is called the reaction rate constant.
+                </p>
+                <p>
+                    The \(A\) molecules are lost as they react with the \(B\) molecules. In particular,
+                    $$
+                    \frac{d\left[A\right]}{dt} = -k\left[A\right]\left[B\right]
+                    $$
+                </p>
+                <p>
+                    In an open system there may be both outflow and inflow of matter as the molecules diffuse over space. Fick's second law gives
+                    $$
+                    \frac{\partial\left[B\right]}{\partial t} = k\left[A\right]\left[B\right] + D\nabla^2\left[B\right]
+                    $$
+                    where \(D\) is a diffusion constant.
+                </p>
+                <p>
+                    It may be the case that some amount of \(B\) decays over time resulting in a product that no longer reacts with \(A\) (an <em> inert product</em>).
+                    In this case we have the stoichiometric equations
+                    $$
+                    \begin{align}
+                    A+B\rightarrow 2B\\
+                    B\rightarrow\text{inert}
+                    \end{align}
+                    $$
+                    We'll assume the first equation has a reaction rate \(k_1\), while the second equation has reaction rate \(k_2\left[B\right]\). Hence
+                    $$
+                    \begin{align}
+                    \frac{\partial\left[B\right]}{\partial t} = k_1\left[A\right]\left[B\right] + D_B\nabla^2\left[B\right] - k_2\left[B\right] \\
+                    \frac{\partial\left[A\right]}{\partial t} = -k_1\left[A\right]\left[B\right] + D_A\nabla^2\left[A\right]
+                    \end{align}
+                    $$
+                </p>
+                <p>
+                    Now for the final complication: suppose that reactant \(A\) is readded to the system according to some rule, e.g. \(k_f(1-\left[A\right])\) supposing the concentration of A (and B) lie within \([0,1]\).
+                    In this case, when the concentration is low \(1-\left[A\right]\) is high, etc. The constant \(k_f\) controls the rate by which \(A\) is fed into the system.        
+                </p>
+                <p>
+                    The equations now look like
+                    $$
+                    \begin{align}
+                    \frac{\partial\left[B\right]}{\partial t} = k_1\left[A\right]\left[B\right] + D_B\nabla^2\left[B\right] - k_2\left[B\right] \\
+                    \frac{\partial\left[A\right]}{\partial t} = k_f(1-\left[A\right]) - k_1\left[A\right]\left[B\right] + D_A\nabla^2\left[A\right]
+                    \end{align}
+                    $$
+                </p>            
+            </section>
+            <section>
+            <h3>Higher-Order Models</h3>
+            <p>
+            Autocatalytic reactions of the form \(A + B \rightarrow B\) are called <em>quadratic</em> or <em>simple</em> [1]. Alternately there is the cubic form
+            $$
+            A + 2B \rightarrow 3B
+            $$
+            and, more generally,
+            $$
+            A + nB \rightarrow (n+1)B.
+            $$
+            The rate of reaction is
+            \(
+            k\left[A\right]\left[B\right]^n
+            \)
+   
+            for \(n\geq 1\).
+            </p>
+            <p>
+            Skipping the tedious algebra, we have the follow reaction-diffusion equation for the quadratic form of the Gray-Scott model:
+            $$
+            \begin{align}
+            \frac{\partial\left[B\right]}{\partial t} = k_1\left[A\right]\left[B\right]^2 + D_B\nabla^2\left[B\right] - k_2\left[B\right] \\
+            \frac{\partial\left[A\right]}{\partial t} = k_f(1-\left[A\right]) - k_1\left[A\right]\left[B\right]^2 + D_A\nabla^2\left[A\right]
+            \end{align}            
+            $$
+            </p>
+            </section>
+            <section>
+            <h3>Pearson's Variation</h3>
+                <p>
+                The paper [2] presents a variant where both reactants are subject to a "non-equilibrium constraint [...] represented by a feed term for" \(A\).
+                We have the stoichiometric equations
+                $$
+                \begin{align}
+                A + 2B \rightarrow 3B\\
+                B \rightarrow \text{inert}
+                \end{align}
+                $$
+                </p>
+                <p>
+                Suppose that the molecules \(A\) and \(B\) are diffusing at rates \(D_A\nabla^2A\) and \(D_B\nabla^2B\) respectively.
+                Furthermore we assume that \(A\) is fed into the system at a rate \(f(1-A)\) and that \(B\) is drained from the system
+                at a rate \(fB\).
+                </p>
+                <p>
+                Finally, suppose the first reaction proceeds at a rate \(k_1AB^2\) and suppose the second one proceeds at a rate \(k_2B\).
+                Then the resulting reaction-diffusion equations are
+                $$
+                \begin{align}
+                \frac{\partial\left[B\right]}{\partial t} = k_1\left[A\right]\left[B\right]^2 + D_B\nabla^2\left[B\right] - (f+k_2)\left[B\right]\\
+                \frac{\partial\left[A\right]}{\partial t} = D_A\nabla^2\left[A\right] - k_1\left[A\right]\left[B\right]^2 + f(1-\left[A\right])
+                \end{align}
+                $$
+                </p>
+            </section>
+            <section>
+            <h3>Simulation</h3>
+            <p>
+                We can simulate this model easily in Python. The state update function looks like
+                <pre><code class="language-python">
+D_A, D_B, f, k_1, k_2 = 0.16, 0.08, 0.035, 1.0, 0.065
+def update(A, B, tmpA, tmpB):
+    tmpA[...] = A + D_A * laplacian(A) - k_1 * A * np.square(B) + f * (1.0 - A)
+    tmpB[...] = B + D_B * laplacian(B) + k_1 * A * np.square(B) - (f + k_2) * B
+    </code></pre>
+    where <code>A, B, tmpA, tmpB</code> are all numpy arrays. These arrays are initialized below with initial conditions from [2]. 
+    <pre><code class="language-python">
+N = 256
+r = 10
+A = np.ones((N, N), dtype=np.float32)
+B = np.zeros((N, N), dtype=np.float32)
+A[N//2 - r:N//2 + r, N//2 - r:N//2 + r] = 0.50
+B[N//2 - r:N//2 + r, N//2 - r:N//2 + r] = 0.25
+A += 0.01 * np.random.uniform(-1, +1, (N, N))
+B += 0.01 * np.random.uniform(-1, +1, (N, N))
+tmpA = np.empty_like(A)
+tmpB = np.empty_like(B)
+</code></pre>
+            </p>
+            <p>
+Now we simulate the system and take a picture of A:
+<pre><code class="language-python">
+for _ in range(200_000):
+    update(A, B, tmpA, tmpB)
+
+    grid_swap = A
+    A = tmpA
+    tmpA = grid_swap
+
+    grid_swap = B
+    B = tmpB
+    tmpB = grid_swap
+plot(A)
+</code></pre>
+which should give something like
+<img src="images/grayscott1.png"><br>
+                      For more on the Laplacian see my <a href="heat.html">previous note</a> about the heat equation.
+                    </p>
+                    <p>
+Different interesting values for the parameters can be found in chapter 4 of [3]. An interesting further direction would be to simulate the <a href="https://en.wikipedia.org/wiki/Belousov%E2%80%93Zhabotinsky_reaction">Belousov–Zhabotinsky reaction</a>.
+                    </p>
+            </section>
+                <section>
+                <h3>References</h3>
+                <ol>
+                    <li>[0] Schuster, Peter, What is special about autocatalysis?, Monatshefte für Chemie - Chemical Monthly (2019) 150:763-775
+                    <li>[1] Gray, P., Scott, S. K., "Autocatalytic Reactions in the Isothermal Continuous Stirred Tank Reactor", Chemical Engineering Science, Vol. 38, No. 1, pp. 29-43, 1983</li>
+                    <li>[2] Pearson, John E., "Complex Patterns in a Simple System", Science, Vol. 261, 9 July 1993</li>
+                    <li>[3] Rougier, Nicolas P., <a href="https://www.labri.fr/perso/nrougier/from-python-to-numpy/">From Python to Numpy</a></li>
+                    <li>[4] Sebastian Kehl, Sebastian Ohlmann, Klaus Reuter, <a href="https://mpcdf.pages.mpcdf.de/python-for-hpc/08--Diffusion.html">Python for HPC</a></li>
+                </ol>
+            </section>
+            <footer>
+                <a href="index.html">home</a>
+                <a href="about.html">about</a>
+            </footer>
+        </main>
+    </body>
+</html>

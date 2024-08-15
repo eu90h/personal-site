@@ -4,6 +4,20 @@
     <link>https://eu90h.com</link>
     <description>I write about Linux, programming, and mathematics.</description>
     <item>
+      <title>The Gray-Scott Model of Autocatalytic Reactions</title>
+      <link>https://eu90h.com/gray-scott.html</link>
+      <description>An exposition of the Gray-Scott model, ending with pretty pictures. Check it out!</description>
+      <pubDate>2024-08-15</pubDate>
+      <author>Stefan</author>
+    </item>
+    <item>
+      <title>Heat</title>
+      <link>https://eu90h.com/heat.html</link>
+      <description>  An introduction to the Laplacian and heat diffusion. Finite difference approximations. Some numpy tricks. Let's get heated.</description>
+      <pubDate>2024-08-10</pubDate>
+      <author>Stefan</author>
+    </item>
+    <item>
       <title>The Gamma Distribution</title>
       <link>https://eu90h.com/gamma-distribution.html</link>
       <description>A short note on the Gamma distribution.</description>

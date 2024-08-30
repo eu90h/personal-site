@@ -60,8 +60,8 @@
                 the operation that produced that Value.</p>
                 <p>Let&#39;s look at how one of the derivatives are computed. The <code>_backward</code> function for add looks like</p>
                 <pre><code><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">_backward</span></span>():
-                    <span class="hljs-keyword">self</span>.grad += <span class="hljs-keyword">out</span>.grad
-                    other.grad += <span class="hljs-keyword">out</span>.grad
+    <span class="hljs-keyword">self</span>.grad += <span class="hljs-keyword">out</span>.grad
+    other.grad += <span class="hljs-keyword">out</span>.grad
                 </code></pre><p>This closure captures self and other, the two children of that add node, and gets stored in the result&#39;s <code>_backward</code> field.</p>
                 <p>It&#39;s fairly easy now to imagine how this all fits together. We call <code>backward</code>, which sets off a chain reaction of calls to different node&#39;s <code>_backward</code> functions.
                 These set the <code>.grad</code> field of their children, which then get their <code>_backward</code> called, which continues pushing the grads around, etc., until we&#39;ve traversed the whole graph.</p>
@@ -100,14 +100,14 @@
                 laid out by MyTorch.</p>
                 <p>My AD engine, Mechagrad, hews to MyTorch pretty closely. It wraps an N-dimensional array, helpfully provided by the ndarray crate. My Tensors are defined quite similarly to MyTorch:</p>
                 <pre><code><span class="hljs-meta">#[derive(Clone)]</span>
-                <span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Tensor</span></span> {
-                    <span class="hljs-keyword">pub</span>(<span class="hljs-keyword">crate</span>) data: ArcArray&lt;<span class="hljs-keyword">f64</span>, IxDyn&gt;,
-                    <span class="hljs-keyword">pub</span>(<span class="hljs-keyword">crate</span>) requires_grad: <span class="hljs-keyword">bool</span>,
-                    <span class="hljs-keyword">pub</span>(<span class="hljs-keyword">crate</span>) is_leaf: <span class="hljs-keyword">bool</span>,
-                    <span class="hljs-keyword">pub</span>(<span class="hljs-keyword">crate</span>) grad: Cell&lt;<span class="hljs-built_in">Option</span>&lt;Tensor&gt;&gt;,
-                    <span class="hljs-keyword">pub</span>(<span class="hljs-keyword">crate</span>) grad_fn: <span class="hljs-built_in">Option</span>&lt;Cell&lt;Node&gt;&gt;,
-                    <span class="hljs-keyword">pub</span>(<span class="hljs-keyword">crate</span>) detached: <span class="hljs-keyword">bool</span>,
-                }
+<span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Tensor</span></span> {
+    <span class="hljs-keyword">pub</span>(<span class="hljs-keyword">crate</span>) data: ArcArray&lt;<span class="hljs-keyword">f64</span>, IxDyn&gt;,
+    <span class="hljs-keyword">pub</span>(<span class="hljs-keyword">crate</span>) requires_grad: <span class="hljs-keyword">bool</span>,
+    <span class="hljs-keyword">pub</span>(<span class="hljs-keyword">crate</span>) is_leaf: <span class="hljs-keyword">bool</span>,
+    <span class="hljs-keyword">pub</span>(<span class="hljs-keyword">crate</span>) grad: Cell&lt;<span class="hljs-built_in">Option</span>&lt;Tensor&gt;&gt;,
+    <span class="hljs-keyword">pub</span>(<span class="hljs-keyword">crate</span>) grad_fn: <span class="hljs-built_in">Option</span>&lt;Cell&lt;Node&gt;&gt;,
+    <span class="hljs-keyword">pub</span>(<span class="hljs-keyword">crate</span>) detached: <span class="hljs-keyword">bool</span>,
+}
                 </code></pre><p>The <code>data</code> field contains the actually ndarray.
                 requires_grad marks a tensor so that it actually receives a gradient value later in the &quot;backward pass&quot;
                 The <code>grad</code> field contains an optional Tensor that represents the actual gradient value
@@ -121,47 +121,47 @@
                 <p>Exactly like PyTorch, I override the various arithmetical operations on Tensors so as to build up a computational graph.
                 Consider the addition of two tensors: <code>x + y</code>.</p>
                 <pre><code><span class="hljs-keyword">impl</span> std::ops::Add <span class="hljs-keyword">for</span> Tensor {
-                    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">Output</span></span> = Tensor;
-                
-                    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">add</span></span>(<span class="hljs-keyword">self</span>, rhs: <span class="hljs-keyword">Self</span>) -&gt; Self::Output {
-                        <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> add = Add {
-                            left: Rc::new(RefCell::new(<span class="hljs-keyword">self</span>)),
-                            right: Rc::new(RefCell::new(rhs)),
-                        };
-                        <span class="hljs-keyword">let</span> result = add.apply();
-                        result.unwrap().get(<span class="hljs-number">0</span>).unwrap().clone()
-                    }
-                }
+    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">Output</span></span> = Tensor;
+
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">add</span></span>(<span class="hljs-keyword">self</span>, rhs: <span class="hljs-keyword">Self</span>) -&gt; Self::Output {
+        <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> add = Add {
+            left: Rc::new(RefCell::new(<span class="hljs-keyword">self</span>)),
+            right: Rc::new(RefCell::new(rhs)),
+        };
+        <span class="hljs-keyword">let</span> result = add.apply();
+        result.unwrap().get(<span class="hljs-number">0</span>).unwrap().clone()
+    }
+}
                 </code></pre><p>This shows a general pattern for the library. Internally, basic operations on tensors are represented by structs that implement the Function trait:</p>
                 <pre><code><span class="hljs-keyword">pub</span>(<span class="hljs-keyword">crate</span>) <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Function</span></span> {
-                    <span class="hljs-comment">///Computes value and links nodes to the computational graph.</span>
-                    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">forward</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) -&gt; Tensor;
-                    <span class="hljs-comment">///Computes derivatives.</span>
-                    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">backward</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, grad_outputs: <span class="hljs-built_in">Vec</span>&lt;Cell&lt;Tensor&gt;&gt;) -&gt; <span class="hljs-built_in">Vec</span>&lt;Tensor&gt;;
-                    <span class="hljs-comment">///Runs forward of subclass and links node to the computational graph.</span>
-                    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">apply</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Option</span>&lt;<span class="hljs-built_in">Vec</span>&lt;Tensor&gt;&gt;;
-                }
+    <span class="hljs-comment">///Computes value and links nodes to the computational graph.</span>
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">forward</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) -&gt; Tensor;
+    <span class="hljs-comment">///Computes derivatives.</span>
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">backward</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, grad_outputs: <span class="hljs-built_in">Vec</span>&lt;Cell&lt;Tensor&gt;&gt;) -&gt; <span class="hljs-built_in">Vec</span>&lt;Tensor&gt;;
+    <span class="hljs-comment">///Runs forward of subclass and links node to the computational graph.</span>
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">apply</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Option</span>&lt;<span class="hljs-built_in">Vec</span>&lt;Tensor&gt;&gt;;
+}
                 </code></pre><p>Context objects a la MyTorch are unneccessary, as the data required for the backward pass can be stored directly in that operation&#39;s struct:</p>
                 <pre><code><span class="hljs-keyword">pub</span>(<span class="hljs-keyword">crate</span>) <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Add</span></span> {
-                    <span class="hljs-keyword">pub</span>(<span class="hljs-keyword">crate</span>) left: Rc&lt;RefCell&lt;Tensor&gt;&gt;,
-                    <span class="hljs-keyword">pub</span>(<span class="hljs-keyword">crate</span>) right: Rc&lt;RefCell&lt;Tensor&gt;&gt;
-                }
+    <span class="hljs-keyword">pub</span>(<span class="hljs-keyword">crate</span>) left: Rc&lt;RefCell&lt;Tensor&gt;&gt;,
+    <span class="hljs-keyword">pub</span>(<span class="hljs-keyword">crate</span>) right: Rc&lt;RefCell&lt;Tensor&gt;&gt;
+}
                 </code></pre><p>The forward function is typically simple. For <code>Add</code> this looks like</p>
                 <pre><code><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">forward</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) -&gt; Tensor {
-                    <span class="hljs-keyword">let</span> a = <span class="hljs-keyword">self</span>.left.clone();
-                    <span class="hljs-keyword">let</span> b = <span class="hljs-keyword">self</span>.right.clone();
-                    <span class="hljs-keyword">let</span> a = a.borrow_mut();
-                    <span class="hljs-keyword">let</span> b = b.borrow_mut();
-                
-                    Tensor {
-                        data: a.data.clone() + b.data.clone(),
-                        requires_grad: a.requires_grad || b.requires_grad,
-                        is_leaf: !(a.requires_grad || b.requires_grad),
-                        grad: Rc::new(RefCell::new(<span class="hljs-literal">None</span>)),
-                        grad_fn: <span class="hljs-literal">None</span>,
-                        detached: a.detached || b.detached,
-                    }
-                }
+    <span class="hljs-keyword">let</span> a = <span class="hljs-keyword">self</span>.left.clone();
+    <span class="hljs-keyword">let</span> b = <span class="hljs-keyword">self</span>.right.clone();
+    <span class="hljs-keyword">let</span> a = a.borrow_mut();
+    <span class="hljs-keyword">let</span> b = b.borrow_mut();
+
+    Tensor {
+        data: a.data.clone() + b.data.clone(),
+        requires_grad: a.requires_grad || b.requires_grad,
+        is_leaf: !(a.requires_grad || b.requires_grad),
+        grad: Rc::new(RefCell::new(<span class="hljs-literal">None</span>)),
+        grad_fn: <span class="hljs-literal">None</span>,
+        detached: a.detached || b.detached,
+    }
+}
                 </code></pre><p>It merely breaks the tensors apart and adds their guts while ensuring that the resulting tensor has its flags correctly set.
                 The logic of the flags is simple enough:
                 A tensor requires a gradient if any of its inputs require gradients.
@@ -169,92 +169,92 @@
                 A tensor is detached if one or more of its parents are detached.</p>
                 <p>The backward function can be a bit messy, but in this case is relatively simple:</p>
                 <pre><code><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">backward</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, grad_outputs: <span class="hljs-built_in">Vec</span>&lt;Cell&lt;Tensor&gt;&gt;) -&gt; <span class="hljs-built_in">Vec</span>&lt;Tensor&gt; {
-                    <span class="hljs-keyword">let</span> (<span class="hljs-keyword">mut</span> grad_a, <span class="hljs-keyword">mut</span> grad_b) = {
-                        <span class="hljs-keyword">let</span> gradient = grad_outputs.get(<span class="hljs-number">0</span>).unwrap().borrow_mut();
-                        <span class="hljs-keyword">let</span> gradient = g.data.clone();
-                        <span class="hljs-keyword">let</span> a = &amp;<span class="hljs-keyword">self</span>.left;
-                        <span class="hljs-keyword">let</span> b = &amp;<span class="hljs-keyword">self</span>.right;
-                        <span class="hljs-keyword">let</span> a = a.borrow_mut();
-                        <span class="hljs-keyword">let</span> b = b.borrow_mut();
-                
-                        (ndarray::Array::ones(a.data.shape()) * gradient.clone(), ndarray::Array::ones(b.data.shape()) * gradient.clone())
-                    };
-                    <span class="hljs-comment">//rest of function excluded</span>
-                }
+    <span class="hljs-keyword">let</span> (<span class="hljs-keyword">mut</span> grad_a, <span class="hljs-keyword">mut</span> grad_b) = {
+        <span class="hljs-keyword">let</span> gradient = grad_outputs.get(<span class="hljs-number">0</span>).unwrap().borrow_mut();
+        <span class="hljs-keyword">let</span> gradient = g.data.clone();
+        <span class="hljs-keyword">let</span> a = &amp;<span class="hljs-keyword">self</span>.left;
+        <span class="hljs-keyword">let</span> b = &amp;<span class="hljs-keyword">self</span>.right;
+        <span class="hljs-keyword">let</span> a = a.borrow_mut();
+        <span class="hljs-keyword">let</span> b = b.borrow_mut();
+
+        (ndarray::Array::ones(a.data.shape()) * gradient.clone(), ndarray::Array::ones(b.data.shape()) * gradient.clone())
+    };
+    <span class="hljs-comment">//rest of function excluded</span>
+}
                 </code></pre><p>We see here the computation of the derivatives with respect to both arguments of the sum x + y. The excluded part mainly is responsible for handling some reshaping,
                 bundling the result into a new Tensor, and setting flags appropriately for the gradient tensor.</p>
                 <pre><code>let grad_a = Tensor {
-                    data: grad_a.into_dimensionality().unwrap().into(), 
-                    requires_grad: <span class="hljs-keyword">false</span>,
-                    is_leaf: <span class="hljs-keyword">true</span>,
-                    grad: Rc::<span class="hljs-keyword">new</span>(RefCell::<span class="hljs-keyword">new</span>(None)),
-                    grad_fn: None,
-                    detached: <span class="hljs-keyword">true</span>,
-                };
+    data: grad_a.into_dimensionality().unwrap().into(), 
+    requires_grad: <span class="hljs-keyword">false</span>,
+    is_leaf: <span class="hljs-keyword">true</span>,
+    grad: Rc::<span class="hljs-keyword">new</span>(RefCell::<span class="hljs-keyword">new</span>(None)),
+    grad_fn: None,
+    detached: <span class="hljs-keyword">true</span>,
+};
                 </code></pre><p>This shows a fairly typical example of creating the gradient tensor object. Gradients never require gradients, are always leaves, and are always detached.</p>
                 <p>The apply function is quite similar across operations. Here is the apply function for Add:</p>
                 <pre><code><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">apply</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Option</span>&lt;<span class="hljs-built_in">Vec</span>&lt;Tensor&gt;&gt; {
-                    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> backward_function = BackwardFunction::new(Rc::new(RefCell::new(<span class="hljs-keyword">self</span>.clone())));
-                    <span class="hljs-keyword">let</span> args = [<span class="hljs-keyword">self</span>.left.clone(), <span class="hljs-keyword">self</span>.right.clone()];
-                    <span class="hljs-keyword">for</span> arg <span class="hljs-keyword">in</span> args.iter() {
-                        <span class="hljs-keyword">let</span> oarg = arg.clone();
-                        <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> arg = arg.borrow_mut();
-                        <span class="hljs-keyword">if</span> arg.grad_fn.is_none() &amp;&amp; !arg.detached {
-                            <span class="hljs-keyword">if</span> arg.is_leaf &amp;&amp; arg.requires_grad {
-                                arg.grad_fn = <span class="hljs-literal">Some</span>(Rc::new(RefCell::new(Node::AccumulateGrad { inner: AccumulateGrad::from(oarg) })))
-                            }
-                        }
-                        <span class="hljs-keyword">let</span> c = arg.grad_fn.clone();
-                        <span class="hljs-keyword">if</span> c.is_some() &amp;&amp; !arg.detached {
-                            backward_function.next_functions.push(c.unwrap());
-                        }
-                    }
-                    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> output_tensor = <span class="hljs-keyword">self</span>.forward();
-                    <span class="hljs-keyword">if</span> !output_tensor.detached {
-                        output_tensor.grad_fn = <span class="hljs-literal">Some</span>(Rc::new(RefCell::new(Node::BackwardFunctionWrapper { inner: backward_function })));
-                    }
-                    <span class="hljs-literal">Some</span>(<span class="hljs-built_in">vec!</span>[output_tensor])
-                }
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> backward_function = BackwardFunction::new(Rc::new(RefCell::new(<span class="hljs-keyword">self</span>.clone())));
+    <span class="hljs-keyword">let</span> args = [<span class="hljs-keyword">self</span>.left.clone(), <span class="hljs-keyword">self</span>.right.clone()];
+    <span class="hljs-keyword">for</span> arg <span class="hljs-keyword">in</span> args.iter() {
+        <span class="hljs-keyword">let</span> oarg = arg.clone();
+        <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> arg = arg.borrow_mut();
+        <span class="hljs-keyword">if</span> arg.grad_fn.is_none() &amp;&amp; !arg.detached {
+            <span class="hljs-keyword">if</span> arg.is_leaf &amp;&amp; arg.requires_grad {
+                arg.grad_fn = <span class="hljs-literal">Some</span>(Rc::new(RefCell::new(Node::AccumulateGrad { inner: AccumulateGrad::from(oarg) })))
+            }
+        }
+        <span class="hljs-keyword">let</span> c = arg.grad_fn.clone();
+        <span class="hljs-keyword">if</span> c.is_some() &amp;&amp; !arg.detached {
+            backward_function.next_functions.push(c.unwrap());
+        }
+    }
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> output_tensor = <span class="hljs-keyword">self</span>.forward();
+    <span class="hljs-keyword">if</span> !output_tensor.detached {
+        output_tensor.grad_fn = <span class="hljs-literal">Some</span>(Rc::new(RefCell::new(Node::BackwardFunctionWrapper { inner: backward_function })));
+    }
+    <span class="hljs-literal">Some</span>(<span class="hljs-built_in">vec!</span>[output_tensor])
+}
                 </code></pre><p>We see here that apply performs the critical job of creating computational graph Node objects and storing them in that operation&#39;s argument&#39;s grad_fn field.
                 Inputs accumulate gradients while operations compute them and pass them back.</p>
                 <p>When we&#39;ve built up some scalar expression out of Tensors, we can retrieve the gradient by calling <code>.backward()</code> on the scalar-valued output tensor.
                 BackwardFunction objects are simple -- they just call the backward method of their given arg:</p>
                 <pre><code><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">apply</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Option</span>&lt;<span class="hljs-built_in">Vec</span>&lt;Tensor&gt;&gt; {
-                    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> c = <span class="hljs-keyword">self</span>.forward_cls.borrow_mut();
-                    <span class="hljs-keyword">return</span> <span class="hljs-literal">Some</span>(c.backward(<span class="hljs-keyword">self</span>.args.clone()));
-                }
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> c = <span class="hljs-keyword">self</span>.forward_cls.borrow_mut();
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">Some</span>(c.backward(<span class="hljs-keyword">self</span>.args.clone()));
+}
                 </code></pre><p>this results in the actual computation of the gradient.</p>
                 <p>AccumulateGrad objects are also simple -- they just update the grad field of the tensor held in the variable field.</p>
                 <pre><code><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">apply</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Option</span>&lt;<span class="hljs-built_in">Vec</span>&lt;Tensor&gt;&gt; {
-                    <span class="hljs-keyword">let</span> grad_is_none = <span class="hljs-keyword">self</span>.variable.borrow_mut().grad.as_ref().borrow().is_none();
-                    <span class="hljs-keyword">if</span> grad_is_none {
-                        <span class="hljs-keyword">let</span> variable = <span class="hljs-keyword">self</span>.variable.borrow_mut();
-                        <span class="hljs-keyword">let</span> a = <span class="hljs-keyword">self</span>.args.get(<span class="hljs-number">0</span>).unwrap().borrow_mut();
-                        <span class="hljs-keyword">let</span> arg = a.clone();
-                        variable.grad.replace(<span class="hljs-literal">Some</span>(arg));
-                    } <span class="hljs-keyword">else</span> {
-                        <span class="hljs-keyword">let</span> variable = <span class="hljs-keyword">self</span>.variable.borrow_mut();
-                        <span class="hljs-keyword">let</span> a = <span class="hljs-keyword">self</span>.args.get(<span class="hljs-number">0</span>).unwrap().borrow_mut();
-                        <span class="hljs-keyword">let</span> arg = a.clone();
-                        variable.grad.replace_with(|x| {
-                            <span class="hljs-keyword">let</span> x = x.as_ref().unwrap();
-                            <span class="hljs-built_in">assert!</span>(x.detached &amp;&amp; !x.requires_grad);
-                            <span class="hljs-keyword">let</span> y = arg;
-                            <span class="hljs-built_in">assert!</span>(y.detached &amp;&amp; !y.requires_grad);
-                
-                            <span class="hljs-literal">Some</span>(x + &amp;y)
-                        });
-                    }
-                    <span class="hljs-literal">None</span>
-                }
+    <span class="hljs-keyword">let</span> grad_is_none = <span class="hljs-keyword">self</span>.variable.borrow_mut().grad.as_ref().borrow().is_none();
+    <span class="hljs-keyword">if</span> grad_is_none {
+        <span class="hljs-keyword">let</span> variable = <span class="hljs-keyword">self</span>.variable.borrow_mut();
+        <span class="hljs-keyword">let</span> a = <span class="hljs-keyword">self</span>.args.get(<span class="hljs-number">0</span>).unwrap().borrow_mut();
+        <span class="hljs-keyword">let</span> arg = a.clone();
+        variable.grad.replace(<span class="hljs-literal">Some</span>(arg));
+    } <span class="hljs-keyword">else</span> {
+        <span class="hljs-keyword">let</span> variable = <span class="hljs-keyword">self</span>.variable.borrow_mut();
+        <span class="hljs-keyword">let</span> a = <span class="hljs-keyword">self</span>.args.get(<span class="hljs-number">0</span>).unwrap().borrow_mut();
+        <span class="hljs-keyword">let</span> arg = a.clone();
+        variable.grad.replace_with(|x| {
+            <span class="hljs-keyword">let</span> x = x.as_ref().unwrap();
+            <span class="hljs-built_in">assert!</span>(x.detached &amp;&amp; !x.requires_grad);
+            <span class="hljs-keyword">let</span> y = arg;
+            <span class="hljs-built_in">assert!</span>(y.detached &amp;&amp; !y.requires_grad);
+
+            <span class="hljs-literal">Some</span>(x + &amp;y)
+        });
+    }
+    <span class="hljs-literal">None</span>
+}
                 </code></pre><p>So much for the outline of the Add operation. Similar objects are implemented for other basic operations including multiplication, 
                 matrix multiplication, dot product, division, exp, log, etc.</p>
                 <p>One pitfall to watch out for when writing an autograd engine are reference cycles. Consider an <code>AccumulateGrad</code> node:</p>
                 <pre><code><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">AccumulateGrad</span></span> {
-                    <span class="hljs-keyword">pub</span>(<span class="hljs-keyword">crate</span>) variable: Weak&lt;RefCell&lt;Tensor&gt;&gt;,
-                    <span class="hljs-keyword">pub</span>(<span class="hljs-keyword">crate</span>) next_functions: <span class="hljs-built_in">Vec</span>&lt;Cell&lt;Node&gt;&gt;,
-                    <span class="hljs-keyword">pub</span>(<span class="hljs-keyword">crate</span>) args: <span class="hljs-built_in">Vec</span>&lt;Cell&lt;Tensor&gt;&gt;,
-                }
+    <span class="hljs-keyword">pub</span>(<span class="hljs-keyword">crate</span>) variable: Weak&lt;RefCell&lt;Tensor&gt;&gt;,
+    <span class="hljs-keyword">pub</span>(<span class="hljs-keyword">crate</span>) next_functions: <span class="hljs-built_in">Vec</span>&lt;Cell&lt;Node&gt;&gt;,
+    <span class="hljs-keyword">pub</span>(<span class="hljs-keyword">crate</span>) args: <span class="hljs-built_in">Vec</span>&lt;Cell&lt;Tensor&gt;&gt;,
+}
                 </code></pre><p>The variable field is defined as a weak reference to the Tensor. If it were, say, an <code>Rc</code>, then we&#39;d have a reference cycle where the neither the Tensor nor its grad_fn can be dropped because they hold mutual references. The same issue was noted as a problem during the development of the Torch library.</p>
                 <hr>
                 <p>Accuracy of the result is of paramount importance. It&#39;s hard to train models if the gradients are subtly wrong so we need a good testing methodology.

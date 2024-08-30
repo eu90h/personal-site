@@ -1,0 +1,274 @@
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Mechagrad - Simple Reverse-Mode Automatic Differentiation in Rust</title>
+        <link rel="canonical" href="https://eu90h.com/mechagrad.html" />
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <link rel="stylesheet" href="https://unpkg.com/normalize.css">
+        <link rel="stylesheet" href="https://unpkg.com/concrete.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+<!-- and it's easy to individually load additional languages -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js"></script>
+
+<script>hljs.highlightAll();</script>
+        <style>
+            code {
+                white-space: pre;
+            }
+
+            code.inline {
+                white-space: normal;
+            }
+        </style>
+    </head>
+    <body>
+        <main>
+            <section>
+            <h1>Mechagrad - Simple Reverse-Mode Automatic Differentiation in Rust</h1>
+            <p>
+                Mechagrad is my attempt to learn machine learning from the ground up, starting with a hand-rolled implementation of automatic differentiation in Rust.
+                It is sufficiently complete to label MNIST digits with high accuracy. More features will be added as I learn more and implement more modern models.
+                The code may be found <a href="https://github.com/eu90h/mechagrad">on GitHub</a>. I've reproduced the README below.
+            </p>
+           </section>
+           <section>
+            <p>This report details the design and implementation of a simple automatic differentiation (AD for short, or, sometimes, autograd) system meant as an educational exercise.
+                I&#39;m new to machine learning (and Rust) and thought it would be fun to build everything from scratch (in tandem with reading Kevin Murphy&#39;s Probabilistic
+                Machine Learning). </p>
+                <p>Models are typically fit via minimization of a scalar-valued loss function - hence the need to compute gradients.
+                This makes the automatic differentiation system a natural starting point, given its central role in learning.</p>
+                <p>There&#39;s lots of resources out there on automatic differentiation, particularly the oft-cited book &quot;Evaluating Derivatives: Principles and Techniques of Algorithmic Differentiation&quot; by Griewank, but I opted to study actually-existing implementations.</p>
+                <hr>
+                <p>First let&#39;s take a look at Andrej Karpathy&#39;s micrograd. This small library shows the essence of an AD implementation.
+                The Value object is central here. It wraps a floating-point value, providing storage for a gradient, along with wrapped arithmetical operations
+                that operate on other values, working to dynamically build a graph of the expression being computed.</p>
+                <p>When we&#39;re building the graph of the computed expression, we actually compute the value of the expression at the same time. This process is known
+                as the forward pass. We can take the resulting graph and perform a backward pass in order to compute derivatives. This is embodied in the Value&#39;s <code>backward</code> method.
+                First, the graph is topologically sorted into a list of nodes, the gradient of that final node is set to 1, and then each node in the reversed topologically-sorted
+                node list has its <code>backward_</code>function called, which is actually responsible for computing the derivatives.</p>
+                <p>It&#39;s worth noting that the topological sort is essentially a reverse-order depth-first-search on the computational graph (viewed as a directed acyclic graph).
+                As it happens, this guarantees that at least one path through the graph exists that visits every node in linear time.</p>
+                <p>The Value object stores a few pieces of data relating to the computational graph. We have <code>_backward</code>, which stores a function responsible for the actual computation of
+                derivatives. There is also <code>_prev</code> which stores that nodes children as a set. In the computation, for instance, of <code>x + y</code>, a node corresponding to the result of the addition operation
+                is constructed with Values x and y as its children. The final field is <code>_op</code> which is mainly for human convenience, merely denoting (as a string) 
+                the operation that produced that Value.</p>
+                <p>Let&#39;s look at how one of the derivatives are computed. The <code>_backward</code> function for add looks like</p>
+                <pre><code><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">_backward</span></span>():
+                    <span class="hljs-keyword">self</span>.grad += <span class="hljs-keyword">out</span>.grad
+                    other.grad += <span class="hljs-keyword">out</span>.grad
+                </code></pre><p>This closure captures self and other, the two children of that add node, and gets stored in the result&#39;s <code>_backward</code> field.</p>
+                <p>It&#39;s fairly easy now to imagine how this all fits together. We call <code>backward</code>, which sets off a chain reaction of calls to different node&#39;s <code>_backward</code> functions.
+                These set the <code>.grad</code> field of their children, which then get their <code>_backward</code> called, which continues pushing the grads around, etc., until we&#39;ve traversed the whole graph.</p>
+                <p>Karpathy&#39;s micrograd is delightfully simple and shows the entire essence of a AD engine. </p>
+                <hr>
+                <p>Now let&#39;s take a look at a look at the MyTorch project for the fall 2020 semester of CMU&#39;s 11-785 Introduction to Deep Learning.
+                This, as the name hints, intends to replicate a reasonable subset of the widely-used PyTorch library.</p>
+                <p>As with micrograd, MyTorch revolves around a central wrapper object called a <code>Tensor</code>, which in this case wraps over a numpy ndarray instead of a scalar float.
+                A micrograd <code>_backward</code> is a MyTorch Tensor&#39;s <code>grad_fn</code> field. Tensors need to be explicitly marked as requiring gradients by setting the <code>requires_grad</code> field to <code>True</code>.
+                A Tensor may also be a leaf node, which means that none of its parents require gradients. This status is tored in the <code>is_leaf</code> field.
+                The combination of requires_grad and <code>is_leaf</code> determines what that Tensor is doing in the computational graph:</p>
+                <ul>
+                <li>AccumulateGrad nodes (is_leaf=True, requires_grad=True). This node does what is says -- it adds a given value to its associated tensor&#39;s grad field.</li>
+                <li>BackwardFunction nodes. (is_leaf=False, requires_grad=True). These nodes calculate gradients and send them out to associated nodes, much like the _backward function
+                for add in micrograd seen above.</li>
+                <li>Constant nodes (is_leaf=True, requires_grad=False). Just a tensor that doesn&#39;t need a gradient and wasn&#39;t created by a series of operations. Think input data.</li>
+                </ul>
+                <p>We can see that MyTorch is a bit more explicit about the computational graph. Now we&#39;ll look at MyTorch&#39;s Add function.
+                Operations are represented as objects that implement a particular interface derived from the Function class that looks something like:</p>
+                <ul>
+                <li>forward(ctx, args...)</li>
+                <li>backward(ctx, grad_output)</li>
+                <li>apply(ctx, args...)</li>
+                </ul>
+                <p>Forward methods implement the forward pass. They&#39;re responsible for computing the output Tensor as well as storing any data required for the backward pass in
+                the context (ctx) object.
+                The apply method is typically the same for all operations, being inherited from the <code>Function</code> class.
+                The job of apply is to do the forward pass and actually perform the construction of the computational graph.
+                The backward method is directly analogous to micrograd&#39;s <code>_backward</code> functions.</p>
+                <p>Notice how micrograd avoids the need for a context object by using a closure in the forward pass to capture the information needed later.</p>
+                <p>Finally, we&#39;ll consider the backward function at the heart of the backward pass (the Tensor&#39;s backward method just sets the grad to 1 and calls this).
+                The MyTorch backward function is left as an exercise in that class, but it&#39;s simple enough: we perform a depth-first search on the graph, calling backward on each node
+                we come across. There is no explicit reversal/sorting of the graph in the case of MyTorch, rather, it seems that graph is in the proper format by construction.</p>
+                <hr>
+                <p>At this point, I felt ready to dive in and try my hand at writing an AD engine. I chose to use the Rust language for this project and decided to mimic the architecture
+                laid out by MyTorch.</p>
+                <p>My AD engine, Mechagrad, hews to MyTorch pretty closely. It wraps an N-dimensional array, helpfully provided by the ndarray crate. My Tensors are defined quite similarly to MyTorch:</p>
+                <pre><code><span class="hljs-meta">#[derive(Clone)]</span>
+                <span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Tensor</span></span> {
+                    <span class="hljs-keyword">pub</span>(<span class="hljs-keyword">crate</span>) data: ArcArray&lt;<span class="hljs-keyword">f64</span>, IxDyn&gt;,
+                    <span class="hljs-keyword">pub</span>(<span class="hljs-keyword">crate</span>) requires_grad: <span class="hljs-keyword">bool</span>,
+                    <span class="hljs-keyword">pub</span>(<span class="hljs-keyword">crate</span>) is_leaf: <span class="hljs-keyword">bool</span>,
+                    <span class="hljs-keyword">pub</span>(<span class="hljs-keyword">crate</span>) grad: Cell&lt;<span class="hljs-built_in">Option</span>&lt;Tensor&gt;&gt;,
+                    <span class="hljs-keyword">pub</span>(<span class="hljs-keyword">crate</span>) grad_fn: <span class="hljs-built_in">Option</span>&lt;Cell&lt;Node&gt;&gt;,
+                    <span class="hljs-keyword">pub</span>(<span class="hljs-keyword">crate</span>) detached: <span class="hljs-keyword">bool</span>,
+                }
+                </code></pre><p>The <code>data</code> field contains the actually ndarray.
+                requires_grad marks a tensor so that it actually receives a gradient value later in the &quot;backward pass&quot;
+                The <code>grad</code> field contains an optional Tensor that represents the actual gradient value
+                the <code>grad_fn</code> field contains an optional Node that is either a <code>BackwardFunction</code> object or an <code>AccumulateGrad</code> object.</p>
+                <ul>
+                <li><code>BackwardFunctions</code> compute gradients and throw them backwards to the operations inputs,</li>
+                <li><code>AccumulateGrad</code> functions do exactly what the name suggests: accumulate anything given to it into a gradient tensor.
+                the detached field allows one to temporarily detach a tensor so that any operations on it don&#39;t get added to the computational graph.
+                  this is useful for instance when updating tensors. We don&#39;t want the update step to have its gradient computed.</li>
+                </ul>
+                <p>Exactly like PyTorch, I override the various arithmetical operations on Tensors so as to build up a computational graph.
+                Consider the addition of two tensors: <code>x + y</code>.</p>
+                <pre><code><span class="hljs-keyword">impl</span> std::ops::Add <span class="hljs-keyword">for</span> Tensor {
+                    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">Output</span></span> = Tensor;
+                
+                    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">add</span></span>(<span class="hljs-keyword">self</span>, rhs: <span class="hljs-keyword">Self</span>) -&gt; Self::Output {
+                        <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> add = Add {
+                            left: Rc::new(RefCell::new(<span class="hljs-keyword">self</span>)),
+                            right: Rc::new(RefCell::new(rhs)),
+                        };
+                        <span class="hljs-keyword">let</span> result = add.apply();
+                        result.unwrap().get(<span class="hljs-number">0</span>).unwrap().clone()
+                    }
+                }
+                </code></pre><p>This shows a general pattern for the library. Internally, basic operations on tensors are represented by structs that implement the Function trait:</p>
+                <pre><code><span class="hljs-keyword">pub</span>(<span class="hljs-keyword">crate</span>) <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Function</span></span> {
+                    <span class="hljs-comment">///Computes value and links nodes to the computational graph.</span>
+                    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">forward</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) -&gt; Tensor;
+                    <span class="hljs-comment">///Computes derivatives.</span>
+                    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">backward</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, grad_outputs: <span class="hljs-built_in">Vec</span>&lt;Cell&lt;Tensor&gt;&gt;) -&gt; <span class="hljs-built_in">Vec</span>&lt;Tensor&gt;;
+                    <span class="hljs-comment">///Runs forward of subclass and links node to the computational graph.</span>
+                    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">apply</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Option</span>&lt;<span class="hljs-built_in">Vec</span>&lt;Tensor&gt;&gt;;
+                }
+                </code></pre><p>Context objects a la MyTorch are unneccessary, as the data required for the backward pass can be stored directly in that operation&#39;s struct:</p>
+                <pre><code><span class="hljs-keyword">pub</span>(<span class="hljs-keyword">crate</span>) <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Add</span></span> {
+                    <span class="hljs-keyword">pub</span>(<span class="hljs-keyword">crate</span>) left: Rc&lt;RefCell&lt;Tensor&gt;&gt;,
+                    <span class="hljs-keyword">pub</span>(<span class="hljs-keyword">crate</span>) right: Rc&lt;RefCell&lt;Tensor&gt;&gt;
+                }
+                </code></pre><p>The forward function is typically simple. For <code>Add</code> this looks like</p>
+                <pre><code><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">forward</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) -&gt; Tensor {
+                    <span class="hljs-keyword">let</span> a = <span class="hljs-keyword">self</span>.left.clone();
+                    <span class="hljs-keyword">let</span> b = <span class="hljs-keyword">self</span>.right.clone();
+                    <span class="hljs-keyword">let</span> a = a.borrow_mut();
+                    <span class="hljs-keyword">let</span> b = b.borrow_mut();
+                
+                    Tensor {
+                        data: a.data.clone() + b.data.clone(),
+                        requires_grad: a.requires_grad || b.requires_grad,
+                        is_leaf: !(a.requires_grad || b.requires_grad),
+                        grad: Rc::new(RefCell::new(<span class="hljs-literal">None</span>)),
+                        grad_fn: <span class="hljs-literal">None</span>,
+                        detached: a.detached || b.detached,
+                    }
+                }
+                </code></pre><p>It merely breaks the tensors apart and adds their guts while ensuring that the resulting tensor has its flags correctly set.
+                The logic of the flags is simple enough:
+                A tensor requires a gradient if any of its inputs require gradients.
+                A tensor isn&#39;t a leaf tensor if one or more of its parents require gradients.
+                A tensor is detached if one or more of its parents are detached.</p>
+                <p>The backward function can be a bit messy, but in this case is relatively simple:</p>
+                <pre><code><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">backward</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, grad_outputs: <span class="hljs-built_in">Vec</span>&lt;Cell&lt;Tensor&gt;&gt;) -&gt; <span class="hljs-built_in">Vec</span>&lt;Tensor&gt; {
+                    <span class="hljs-keyword">let</span> (<span class="hljs-keyword">mut</span> grad_a, <span class="hljs-keyword">mut</span> grad_b) = {
+                        <span class="hljs-keyword">let</span> gradient = grad_outputs.get(<span class="hljs-number">0</span>).unwrap().borrow_mut();
+                        <span class="hljs-keyword">let</span> gradient = g.data.clone();
+                        <span class="hljs-keyword">let</span> a = &amp;<span class="hljs-keyword">self</span>.left;
+                        <span class="hljs-keyword">let</span> b = &amp;<span class="hljs-keyword">self</span>.right;
+                        <span class="hljs-keyword">let</span> a = a.borrow_mut();
+                        <span class="hljs-keyword">let</span> b = b.borrow_mut();
+                
+                        (ndarray::Array::ones(a.data.shape()) * gradient.clone(), ndarray::Array::ones(b.data.shape()) * gradient.clone())
+                    };
+                    <span class="hljs-comment">//rest of function excluded</span>
+                }
+                </code></pre><p>We see here the computation of the derivatives with respect to both arguments of the sum x + y. The excluded part mainly is responsible for handling some reshaping,
+                bundling the result into a new Tensor, and setting flags appropriately for the gradient tensor.</p>
+                <pre><code>let grad_a = Tensor {
+                    data: grad_a.into_dimensionality().unwrap().into(), 
+                    requires_grad: <span class="hljs-keyword">false</span>,
+                    is_leaf: <span class="hljs-keyword">true</span>,
+                    grad: Rc::<span class="hljs-keyword">new</span>(RefCell::<span class="hljs-keyword">new</span>(None)),
+                    grad_fn: None,
+                    detached: <span class="hljs-keyword">true</span>,
+                };
+                </code></pre><p>This shows a fairly typical example of creating the gradient tensor object. Gradients never require gradients, are always leaves, and are always detached.</p>
+                <p>The apply function is quite similar across operations. Here is the apply function for Add:</p>
+                <pre><code><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">apply</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Option</span>&lt;<span class="hljs-built_in">Vec</span>&lt;Tensor&gt;&gt; {
+                    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> backward_function = BackwardFunction::new(Rc::new(RefCell::new(<span class="hljs-keyword">self</span>.clone())));
+                    <span class="hljs-keyword">let</span> args = [<span class="hljs-keyword">self</span>.left.clone(), <span class="hljs-keyword">self</span>.right.clone()];
+                    <span class="hljs-keyword">for</span> arg <span class="hljs-keyword">in</span> args.iter() {
+                        <span class="hljs-keyword">let</span> oarg = arg.clone();
+                        <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> arg = arg.borrow_mut();
+                        <span class="hljs-keyword">if</span> arg.grad_fn.is_none() &amp;&amp; !arg.detached {
+                            <span class="hljs-keyword">if</span> arg.is_leaf &amp;&amp; arg.requires_grad {
+                                arg.grad_fn = <span class="hljs-literal">Some</span>(Rc::new(RefCell::new(Node::AccumulateGrad { inner: AccumulateGrad::from(oarg) })))
+                            }
+                        }
+                        <span class="hljs-keyword">let</span> c = arg.grad_fn.clone();
+                        <span class="hljs-keyword">if</span> c.is_some() &amp;&amp; !arg.detached {
+                            backward_function.next_functions.push(c.unwrap());
+                        }
+                    }
+                    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> output_tensor = <span class="hljs-keyword">self</span>.forward();
+                    <span class="hljs-keyword">if</span> !output_tensor.detached {
+                        output_tensor.grad_fn = <span class="hljs-literal">Some</span>(Rc::new(RefCell::new(Node::BackwardFunctionWrapper { inner: backward_function })));
+                    }
+                    <span class="hljs-literal">Some</span>(<span class="hljs-built_in">vec!</span>[output_tensor])
+                }
+                </code></pre><p>We see here that apply performs the critical job of creating computational graph Node objects and storing them in that operation&#39;s argument&#39;s grad_fn field.
+                Inputs accumulate gradients while operations compute them and pass them back.</p>
+                <p>When we&#39;ve built up some scalar expression out of Tensors, we can retrieve the gradient by calling <code>.backward()</code> on the scalar-valued output tensor.
+                BackwardFunction objects are simple -- they just call the backward method of their given arg:</p>
+                <pre><code><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">apply</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Option</span>&lt;<span class="hljs-built_in">Vec</span>&lt;Tensor&gt;&gt; {
+                    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> c = <span class="hljs-keyword">self</span>.forward_cls.borrow_mut();
+                    <span class="hljs-keyword">return</span> <span class="hljs-literal">Some</span>(c.backward(<span class="hljs-keyword">self</span>.args.clone()));
+                }
+                </code></pre><p>this results in the actual computation of the gradient.</p>
+                <p>AccumulateGrad objects are also simple -- they just update the grad field of the tensor held in the variable field.</p>
+                <pre><code><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">apply</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Option</span>&lt;<span class="hljs-built_in">Vec</span>&lt;Tensor&gt;&gt; {
+                    <span class="hljs-keyword">let</span> grad_is_none = <span class="hljs-keyword">self</span>.variable.borrow_mut().grad.as_ref().borrow().is_none();
+                    <span class="hljs-keyword">if</span> grad_is_none {
+                        <span class="hljs-keyword">let</span> variable = <span class="hljs-keyword">self</span>.variable.borrow_mut();
+                        <span class="hljs-keyword">let</span> a = <span class="hljs-keyword">self</span>.args.get(<span class="hljs-number">0</span>).unwrap().borrow_mut();
+                        <span class="hljs-keyword">let</span> arg = a.clone();
+                        variable.grad.replace(<span class="hljs-literal">Some</span>(arg));
+                    } <span class="hljs-keyword">else</span> {
+                        <span class="hljs-keyword">let</span> variable = <span class="hljs-keyword">self</span>.variable.borrow_mut();
+                        <span class="hljs-keyword">let</span> a = <span class="hljs-keyword">self</span>.args.get(<span class="hljs-number">0</span>).unwrap().borrow_mut();
+                        <span class="hljs-keyword">let</span> arg = a.clone();
+                        variable.grad.replace_with(|x| {
+                            <span class="hljs-keyword">let</span> x = x.as_ref().unwrap();
+                            <span class="hljs-built_in">assert!</span>(x.detached &amp;&amp; !x.requires_grad);
+                            <span class="hljs-keyword">let</span> y = arg;
+                            <span class="hljs-built_in">assert!</span>(y.detached &amp;&amp; !y.requires_grad);
+                
+                            <span class="hljs-literal">Some</span>(x + &amp;y)
+                        });
+                    }
+                    <span class="hljs-literal">None</span>
+                }
+                </code></pre><p>So much for the outline of the Add operation. Similar objects are implemented for other basic operations including multiplication, 
+                matrix multiplication, dot product, division, exp, log, etc.</p>
+                <p>One pitfall to watch out for when writing an autograd engine are reference cycles. Consider an <code>AccumulateGrad</code> node:</p>
+                <pre><code><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">AccumulateGrad</span></span> {
+                    <span class="hljs-keyword">pub</span>(<span class="hljs-keyword">crate</span>) variable: Weak&lt;RefCell&lt;Tensor&gt;&gt;,
+                    <span class="hljs-keyword">pub</span>(<span class="hljs-keyword">crate</span>) next_functions: <span class="hljs-built_in">Vec</span>&lt;Cell&lt;Node&gt;&gt;,
+                    <span class="hljs-keyword">pub</span>(<span class="hljs-keyword">crate</span>) args: <span class="hljs-built_in">Vec</span>&lt;Cell&lt;Tensor&gt;&gt;,
+                }
+                </code></pre><p>The variable field is defined as a weak reference to the Tensor. If it were, say, an <code>Rc</code>, then we&#39;d have a reference cycle where the neither the Tensor nor its grad_fn can be dropped because they hold mutual references. The same issue was noted as a problem during the development of the Torch library.</p>
+                <hr>
+                <p>Accuracy of the result is of paramount importance. It&#39;s hard to train models if the gradients are subtly wrong so we need a good testing methodology.
+                I settled on the idea of using the well-vetted torch library, or more particularly its Rust bindings <code>tch</code>, as a source of ground truth by which to compare results.</p>
+                <p>The idea is that we build the same expression in both my Tensor implementation and in torch, call the backward function, and then compare the gradients computed.</p>
+                <p>As a capstone test, I created a feedforward neural network with ReLU activation and trained it to label digits in the MNIST set. I tasked torch with the same. At every
+                step of the training of the network, I compare the gradients computed by my implementation and torch, ensuring that they agree to some determined precision.</p>
+                
+           </section>
+       
+            <footer>
+                <a href="index.html">home</a>
+                <a href="about.html">about</a>
+            </footer>
+        </main>
+    </body>
+</html>

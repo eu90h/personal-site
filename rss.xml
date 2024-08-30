@@ -4,6 +4,20 @@
     <link>https://eu90h.com</link>
     <description>I write about Linux, programming, and mathematics.</description>
     <item>
+      <title>mechagrad: Reverse-Mode Automatic Differentiation in Rust</title>
+      <link>https://eu90h.com/mechagrad.html</link>
+      <description>An implementation of reverse-mode automatic differentiation in Rust.</description>
+      <pubDate>2024-08-30</pubDate>
+      <author>Stefan</author>
+    </item>
+    <item>
+      <title>Forward-Mode Automatic Differentiation with Dual Numbers</title>
+      <link>https://eu90h.com/dual-numbers.html</link>
+      <description>A simple scalar forward-mode automatic differentiation implementation using dual numbers.</description>
+      <pubDate>2024-08-30</pubDate>
+      <author>Stefan</author>
+    </item>
+    <item>
       <title>The Gray-Scott Model of Autocatalytic Reactions</title>
       <link>https://eu90h.com/gray-scott.html</link>
       <description>An exposition of the Gray-Scott model, ending with pretty pictures. Check it out!</description>

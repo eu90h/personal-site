@@ -1,0 +1,108 @@
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Automatically Computing Derivative with Dual Numbers</title>
+        <link rel="canonical" href="https://eu90h.com/dual-numbers.html" />
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <link rel="stylesheet" href="https://unpkg.com/normalize.css">
+        <link rel="stylesheet" href="https://unpkg.com/concrete.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+<!-- and it's easy to individually load additional languages -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js"></script>
+
+<script>hljs.highlightAll();</script>
+        <style>
+            code {
+                white-space: pre;
+            }
+
+            code.inline {
+                white-space: normal;
+            }
+        </style>
+    </head>
+    <body>
+        <main>
+            <section>
+            <h1>Forward-Mode Automatic Differentiation with Dual Numbers</h1>
+            <p>
+                Recall the complex numbers written as \(a+bi\) where \(i^2 = -1\). It would be interesting to change this definition slightly, considering instead numbers of
+                the form \(a+b\epsilon\) where \(\epsilon^2 = 0\). The \(\epsilon\) is suggestive an infinitesimal displacement. Such numbers are known as <em>dual numbers</em>.
+                Sometimes we may write \((a,b)\) in place of \(a+b\epsilon\).
+            </p>
+            <p>
+                Notice that
+                $$
+                (a+b\epsilon) + (c + d\epsilon) = (a+c) + (b+d)\epsilon
+                $$
+                and
+                $$
+                (a+b\epsilon)(c + d\epsilon) = ac + ad\epsilon + bc\epsilon + bd\epsilon^2 = ac + (ad + bc)\epsilon
+                $$
+            </p>
+            <p>
+                It turns out that dual numbers can be used to compute derivatives. Consider \((a,b)(c,d) + (e,f)\).
+                $$
+                (a,b)(c,d) + (e,f) = (ac + e, ad + bc + f)
+                $$
+                Notice that \(\frac{\partial}{\partial a} ac + e = c\). Look what happens when we set \(b=1, d=0, f=0\):
+                $$
+                (a,1)(c,0) + (e,0) = (ac + e, c)
+                $$
+                Furthermore, we find that \(\frac{\partial}{\partial c} ac + e = a\). When we set \(b=0, d=1, f=0\) we get:
+                $$
+                (a,0)(c,1) + (e,0) = (ac + e, a)
+                $$
+                Finally, \(\frac{\partial}{\partial e} ac + e = 1\). Setting \(b=0, d=0, f=1\) gives:
+                $$
+                (a,0)(c,0) + (e,1) = (ac + e, 1)
+                $$
+            </p>
+            </section>
+            <section>
+                <p>Dual numbers are particularly easy to implement in software.
+                In Rust, for instance, we may write something like
+                <pre><code>
+struct DualNumber {
+    a: f64,
+    b: f64
+}
+                    
+impl std::ops::Mul for DualNumber {
+    type Output = DualNumber;
+
+    fn mul(self, rhs: Self) -> Self::Output {
+        DualNumber {
+            a: self.a * rhs.a,
+            b: (self.a * rhs.b) + (self.b * rhs.a)
+        }
+    }
+                </code></pre>
+            It is straightforward to implement the remaining arithmetic operators.  
+            </p>
+                
+            </section>
+            <section>
+               <p>
+                Computing derivatives in this way is an example of <em>forward-mode automatic differentiation</em>.
+                This is different than approximating derivatives using a finite difference as I did with the Laplacian in <a href="gray-scott.html">Gray-Scott</a>.
+              
+                In this method, we have an exact expression of the derivative of a primitive operation and compute a numerical value. This eliminates round-off errors introduced
+                in the discretization process.
+                </p>
+                <p>I've uploaded the code for a simple dual numbers library <a href="https://github.com/eu90h/dual-numbers">here</a>.</p>
+            </section>
+       
+            <footer>
+                <a href="index.html">home</a>
+                <a href="about.html">about</a>
+            </footer>
+        </main>
+    </body>
+</html>

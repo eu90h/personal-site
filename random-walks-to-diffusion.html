@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Deriving the Diffusion Equation from a Random Walk</title>
+        <link rel="canonical" href="https://eu90h.com/random-walks-to-diffusion.html" />
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <link rel="stylesheet" href="https://unpkg.com/normalize.css">
+        <link rel="stylesheet" href="https://unpkg.com/concrete.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+<!-- and it's easy to individually load additional languages -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js"></script>
+
+<script>hljs.highlightAll();</script>
+        <style>
+            code {
+                white-space: pre;
+            }
+
+            code.inline {
+                white-space: normal;
+            }
+        </style>
+    </head>
+    <body>
+        <main>
+            <section>
+            <h1>Deriving the Diffusion Equation from a Random Walk</h1>
+            <p>
+                The diffusion equation
+                $$
+                \frac{\partial \rho}{\partial t} = D\nabla^2 \rho
+                $$
+                appears in a remarkable number of places. 
+                I've <a href="heat.html">previously covered</a> the diffusion equation in one guise as the heat equation (and the cool patterns produced by <a href="gray-scott.html">reaction-diffusion equations</a>)
+            </p>
+            <p>
+                Here we'll derive the diffusion equation starting from a random walk.
+            </p>
+            </section>
+
+            <section>
+                <p>
+                    Imagine at the initial moment, \(t_0=0\), we
+                    observe the position of a random-walker. This walker will move from its initial position \(x_0\) to position \(x_1\) after \(t_1\)
+                    seconds with probability \(\chi(x_1 - x_0)\). This density \(\chi(\ell)\) describes the probability of the random-walker taking a step of length
+                    \(\ell\). The density \(\rho(x,t)\) gives the probability of finding the walker at location \(x\) at time \(t\).
+                </p>
+                <p>
+                    We want to describe the evolution of this density \(\rho\) through time. The probability density at \((x,t + \Delta t)\) should be linked to the density at \((x, t)\) in some way.
+                    It seems reasonable that, assuming the \(\Delta t\) is small enough, the density should be a small evolution of the the values at the prior time.
+                    
+                </p>
+                <p>
+                    If we know that at \(t+\Delta t\) that the walker is at \(x^\prime\), we can determine the density by thinking about all the ways to end up at \(x^\prime\).
+                    For instance we could end up at \(x^\prime\) by starting at \(x_0\) and taking a step of length \(x^\prime - x_0\). The probability to start at \(x_0\) at
+                    time \(t\) is given by \(\rho(x_0, t)\) while the probability to take that step is \(\chi(x^\prime - x_0)\).
+                    The walker could start anywhere that the density \(\rho(x,t)\) is defined so we have to consider contributions from the whole domain. This leads to the integral
+                    $$
+\rho(x^\prime, t+\Delta t) = \int_{-\infty}^{\infty}\chi(x^\prime - x)\rho(x, t)dx
+                    $$
+                </p>
+                <p>
+                    Carefully, while minding the various negative signs, use the subtitution \(u=x^\prime - x\) in this integral to get
+                    $$
+                    \rho(x^\prime, t+\Delta t) = \int_{-\infty}^{\infty}\chi(u)\rho(x-u, t)du
+                    $$
+                </p>
+            </section>
+            <section>
+                <p>
+                    Now for a decisive approximation! Taylor expand the density in the integrand around x, truncating at the second-order term. This gives us
+                    $$
+\rho(x-u, t) \approx \rho(x,t) + u\frac{\partial \rho}{\partial x} + \frac{u^2}{2}\frac{\partial^2 \rho}{\partial x^2}
+                    $$
+                    for sufficiently small \(u\). Use this to approximate the integral obtained earlier.
+                    $$
+                    \rho(x^\prime, t+\Delta t) \approx \int_{-\infty}^{\infty}\chi(u)\left(\rho(x,t) + u\frac{\partial \rho}{\partial x} + \frac{u^2}{2}\frac{\partial^2 \rho}{\partial x^2}\right)du
+                    $$
+                </p>
+            </section>
+            <section>
+                <p>
+                    Let's halt here and consider whether this procedure makes sense or not. After all, the Taylor expansion is valid only in small neighborhoods of \(x\), yet
+                    in the integral its being computed over the entirety of the real number line \(\mathbb{R}\). What gives?
+                </p> 
+                <p>
+                    The idea (I think) is that over very small displacements of time \(\Delta t\), under reasonable assumptions about the motion of our random-walker, like 
+                    that it moves continuously (no teleporting, etc.) at some reasonable velocity, then we should expect the step probability \(\chi(\ell)\) to vanish
+                    over most of \(\mathbb{R}\). 
+                </p>
+                <p>
+                    We can write then
+                    $$
+                    \rho(x^\prime, t+\Delta t) = \int_{\alpha}^{\beta}\chi(u)\rho(x-u, t)du
+                    $$
+                    as the integral over the region where the step probability is non-vanishing.
+                </p>
+                <p>
+                    On a subset of this region we should expect our Taylor series approximation to hold quite well:
+                    $$
+                    \rho(x^\prime, t+\Delta t) \approx \int_{\alpha_1}^{\beta_1}\chi(u)\left(\rho(x,t) + u\frac{\partial \rho}{\partial x} + \frac{u^2}{2}\frac{\partial^2 \rho}{\partial x^2}\right)du
+                    $$
+                    The main idea though is the step probabilities control the integrand far away from the prior position, assuming that the particle moves reasonably in infinitesimally small time slices.
+                </p>
+            </section>
+            <section>
+                <p>Now with our handy approximation, we can compute the integral:
+                    $$
+                    \int_{\alpha_1}^{\beta_1}\chi(u)\left(\rho(x,t) + u\frac{\partial \rho}{\partial x} + \frac{u^2}{2}\frac{\partial^2 \rho}{\partial x^2}\right)du
+                    = \rho(x,t)\int_{-\infty}^{\infty}\chi(u)du + \frac{\partial\rho}{\partial x}\int_{-\infty}^{\infty}u\chi(u)du + \frac{1}{2}\frac{\partial^2 \rho}{\partial x^2}\int_{-\infty}^{\infty}u^2\chi(u)du
+                    $$
+                </p>
+                <p>
+                    Observe that each of the remaining three integrals on the right-hand side are easily determined. The first integral
+                    $$
+                    \int_{-\infty}^{\infty}\chi(u)du = 1
+                    $$
+                    by definition of a probability distribution.
+                </p>
+                <p>
+                    The second integral is the first moment of the step distribution
+                    $$
+                    \int_{-\infty}^{\infty}u\chi(u)du = \mu
+                    $$
+                </p>
+                <p>
+                    While the final integral is its second moment
+                    $$
+                    \int_{-\infty}^{\infty}u^2\chi(u)du = \sigma^2
+                    $$
+                </p>
+                <p>
+                    For this problem we'll conveniently set the mean \(\mu = 0\).
+                </p>
+            </section>
+            <section>
+                <p>
+                    We're now left with
+                    $$
+                    \rho(x^\prime, t+\Delta t) \approx \rho(x,t) +  \frac{\sigma^2}{2}\frac{\partial^2 \rho}{\partial x^2}
+                    $$
+                </p>
+                <p>
+                    We assumed previously that \(\Delta t\) was small. Particularly, let's assume that its small enough so that we have
+                    $$
+                    \rho(x, t+\Delta t) - \rho(x, t) \approx \frac{\partial \rho}{\partial t}\Delta t
+                    $$
+                </p>
+                <p>
+                    Plugging that into the result of the integral approximation gives us
+                    $$
+                    \frac{\partial \rho}{\partial t} \approx \frac{\sigma^2}{2\Delta t}\frac{\partial^2 \rho}{\partial x^2}
+                    $$
+                </p>
+            </section>
+            
+            <section>
+                <p>
+                    This result holds for the multidimensional case, giving us the <em>diffusion equation</em>
+                    $$
+                    \frac{\partial \rho}{\partial t} = D \nabla^2 \rho
+                    $$
+                    where \(D={\sigma^2}/{2\Delta t}\) is the diffusion constant.
+                </p>
+            </section>
+            
+            <footer>
+                <a href="index.html">home</a>
+                <a href="about.html">about</a>
+            </footer>
+        </main>
+    </body>
+</html>

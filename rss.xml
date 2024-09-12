@@ -4,6 +4,13 @@
     <link>https://eu90h.com</link>
     <description>I write about Linux, programming, and mathematics.</description>
     <item>
+      <title>From Random Walks to the Diffusion Equation</title>
+      <link>https://eu90h.com/random-walks-to-diffusion.html</link>
+      <description>Deriving the diffusion equation starting from the random walk.</description>
+      <pubDate>2024-09-12</pubDate>
+      <author>Stefan</author>
+    </item>
+    <item>
       <title>mechagrad: Reverse-Mode Automatic Differentiation in Rust</title>
       <link>https://eu90h.com/mechagrad.html</link>
       <description>An implementation of reverse-mode automatic differentiation in Rust.</description>

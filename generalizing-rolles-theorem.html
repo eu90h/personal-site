@@ -1,0 +1,74 @@
+<!DOCTYPE html> 
+<html lang='en-US' xml:lang='en-US'> 
+<head><title>An Easy Generalization of Rolle's Theorem</title> 
+<meta charset='utf-8' /> 
+<meta content='TeX4ht (https://tug.org/tex4ht/)' name='generator' /> 
+<meta content='width=device-width,initial-scale=1' name='viewport' /> 
+<link rel="canonical" href="https://eu90h.com/generalizing-rolles-theorem.html" />
+
+<link href='tex4ht.css' rel='stylesheet' type='text/css' /> 
+<script>window.MathJax = { tex: { tags: "ams", }, }; </script> 
+<script defer src="https://cloud.umami.is/script.js" data-website-id="70788810-481e-4345-b9d5-37e438388a6c"></script>
+
+ <script async='async' id='MathJax-script' src='https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js' type='text/javascript'></script>  
+ <style>
+    * {
+        background-color: black;
+        color: white;
+    }
+ </style>
+</head><body>
+   <div class='maketitle'>
+
+
+
+
+<h2 class='titleHead'>An Easy Generalization of Rolle's Theorem</h2>
+ <div class='author'></div><br />
+<div class='date'><span class='cmr-12x-x-120'>May 9, 2025</span></div>
+
+   </div>
+   <div>
+    <p>
+                    I spotted the following lemma in a paper titled "On Approximation by Solutions of Ordinary Linear Differential Equations" in J. SIAM Numer. Anal. Vol. 3, No. 2, 1966.
+
+                    It's provable through a straightforward application of Rolle's theorem after discovering an appropriate integrating factor. Let's dig in.
+                </p>
+   </div>
+   <div class='newtheorem'>
+<!-- l. 16 --><p class='noindent'><span class='head'>
+<a id='x1-2r1'></a>
+<span class='cmbx-12'>Lemma.</span>  </span><span class='cmti-12'>Let</span> \(f(x)\) <span class='cmti-12'>be differentiable in the compact interval</span> \([a,b]\) <span class='cmti-12'>and suppose</span> \(f(a) = f(b) = 0\)<span class='cmti-12'>. Then
+for every</span> \(\lambda (x)\in C[a,b]\) <span class='cmti-12'>there exists</span> \(c=c(\lambda )\)<span class='cmti-12'>,</span> \(a&lt;c&lt;b\)<span class='cmti-12'>, such that</span>
+                                     \[ f^\prime (c) + \lambda (c)f(c) = 0 \]
+</p>
+   </div>
+<!-- l. 22 --><p class='indent'>
+</p>
+   <div class='proof'>
+<!-- l. 24 --><p class='indent'>   <span class='head'>
+<span class='cmti-12'>Proof.</span> </span>Notice that
+                                     \[ f^\prime (x) + \lambda (x)f(x) = 0 \]
+ is a first-order linear differential equation of the form
+
+                                     \[ y^\prime + P(x)y = Q(x). \]
+</p><!-- l. 33 --><p class='indent'>   Differential equations of this sort are amenable to solution by discovering
+an integrating factor \(M(x)\) so that
+                                     \[ f^\prime (x)M(x) + \lambda (x)f(x)M(x) = \frac {dF}{dx} \]
+ for some function \(F\).
+</p><!-- l. 39 --><p class='indent'>   Let \(\lambda (x)\) be given as above. Define
+                                     \[ F(x) = f(x)\exp \left (\int _a^x\lambda (t)dt\right ) \]
+ and observe that \(F(a) = F(b) = 0\) since \(f(a) = f(b) = 0\). \(F(x)\) is the product of two continuous and differentiable
+functions. Thus \(F\) is continuous on \([a,b]\) and differentiable on \((a,b)\).<br class='newline' />
+</p><!-- l. 45 --><p class='indent'>   This function, then, satisfies the conditions for Rolle’s theorem. Then it
+must be that there exists some \(c \in (a,b)\) with
+
+                                     \[ F^\prime (c) = 0 = f^\prime (c)\exp \left (\Lambda (c)\right ) + f(c)\lambda (c)\exp \left (\Lambda (c)\right ) \]
+ where \(\Lambda (x) = \int _a^x\lambda (t)dt\) is an antiderivative of \(\lambda \). Since \(\exp (z)\) is non-zero for all \(z\), we must have
+                                     \[ f^\prime (c) + f(c)\lambda (c) = 0 \]
+ which is the desired result.                                                              □
+</p>
+   </div>
+    
+</body> 
+</html>

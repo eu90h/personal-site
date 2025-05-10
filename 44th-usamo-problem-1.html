@@ -1,0 +1,96 @@
+<!DOCTYPE html> 
+<html lang='en-US' xml:lang='en-US'> 
+<head><title>44th USAMO Problem #1</title> 
+<meta charset='utf-8' /> 
+<meta content='TeX4ht (https://tug.org/tex4ht/)' name='generator' /> 
+<meta content='width=device-width,initial-scale=1' name='viewport' /> 
+<link href='tex4ht.css' rel='stylesheet' type='text/css' /> 
+<link rel="canonical" href="https://eu90h.com/44th-usamo-problem-1.html" />
+<script>window.MathJax = { tex: { tags: "ams", }, }; </script> 
+<script defer src="https://cloud.umami.is/script.js" data-website-id="70788810-481e-4345-b9d5-37e438388a6c"></script>
+
+ <script async='async' id='MathJax-script' src='https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js' type='text/javascript'></script>  
+ <style>
+    * {
+        background-color: black;
+        color: white;
+    }
+ </style></head><body>
+   <div class='maketitle'>
+
+
+
+
+<h2 class='titleHead'>44th USAMO Problem #1</h2>
+ <div class='author'></div><br />
+<div class='date'><span class='cmr-12x-x-120'>May 10, 2025</span></div>
+
+   </div>
+   <div class='newtheorem'>
+<!-- l. 20 --><p class='noindent'><span class='head'>
+<a id='x1-2r1'></a>
+<span class='cmbx-12'>Problem 1.</span>  </span>Solve in integers the equation
+                                     \[ x^2+xy+y^2 = \left (\frac {x+y}{3} + 1\right )^3 \]
+</p>
+   </div>
+<!-- l. 25 --><p class='indent'>
+</p>
+   <div class='newtheorem'>
+<!-- l. 26 --><p class='noindent'><span class='head'>
+<a id='x1-3r1'></a>
+<span class='cmbx-12'>Solution.</span>  </span>I began by considering
+                                     \[ \left (\frac {x+y}{3} + 1\right )^3 = A \]
+ for some integer \(A\). My thought was that it’s harder for the right-hand side to
+
+be an integer given the division so that makes for a natural starting place.
+</p><!-- l. 33 --><p class='indent'>   Rearrangement gives us
+                                     \[ x+y = 3\left (A^{1/3} - 1\right ) \]
+ Since we want integer solutions \((x,y)\), then we would need that right-hand side
+to remain an integer. That means we can choose some integer \(k\) such that \(k = A^{1/3} - 1\).
+So let’s suggest that \(x+y = 3k\) for some integer \(k\). Notice the left-hand side \(x^2 + xy + y^2\) is <span class='cmti-12'>almost</span> \((x+y)^2 = 9k^2\).
+Since \(x+y=3k\), we may take \(y\) as dependent: \(y = 3k - x\).
+</p><!-- l. 40 --><p class='indent'>   Now we have
+                                     \[ x^2 + xy + y^2 = 9k^2 - xy = (k+1)^3 \]
+ This gives us
+
+                                     \[ xy = 3kx - x^2 = 9k^2 - (k+1)^3 = -k^3 + 6k^2 - 3k - 1 \]
+ Observe that this is a quadratic polynomial in \(x\). Form the discriminant of
+this polynomial:
+                                     \[ \Delta = 9k^2 + 4(k^3 -6k^2 + 3k + 1) = 4k^3 -15k^2+12k+4 \]
+ By inspection, we can surmise that if \(\Delta \) has a rational root \(\frac {p}{q}\), then both \(p\) and
+\(q\) divide \(4\) so \(p,q = 1, 2,\,\text {or}\, 4\). We’re interested in integer solutions, so we’ll presume that \(p/q = 1, 2,\,\text {or}\, 4\).
+After trying the possibilities, the only root that gives a cleanly factorizes the
+discriminant is \(k=2\) with multiplicity \(2\).
+</p><!-- l. 56 --><p class='indent'>   Working out the polynomial long division of \((k-2)^2\) into \(4k^3 -15k^2+12k+4\) gives the remaining
+factor:
+                                     \[ 4k^3 -15k^2+12k+4 = (k-2)^2(4k+1). \]
+</p><!-- l. 61 --><p class='indent'>   Recalling the quadratic formula, the numerator works out to be
+
+                                     \[ 3k \pm \sqrt {4k^3 -15k^2+12k+4} = 3k \pm (k-2)\sqrt {4k+1} \]
+ We now require, if we want integer solutions, that \(\sqrt {4k+1} = aw+b\) for some integers \(a,b\) and \(w\).
+Squaring gives us
+                                     \[ 4k+1 = a^2w^2 + 2abw + b^2 \]
+ Let’s choose \(b=1\) so that after a little algebra we get
+                                     \[ k = \frac {a^2w^2}{4} + \frac {aw}{2} \]
+ As \(k\) is an integer, we must have \(2|aw\) and \(4 | a^2w^2\). Since \(w\) is presumed fixed, the clear
+choice is picking \(a=2\). Now we have \(4k+1 = (2w+1)^2\) for some integer \(w\).
+</p><!-- l. 74 --><p class='indent'>   Expanding \(4k+1 = (2w+1)^2\), we can now write
+
+                                     \[ k = w^2 + w. \]
+</p><!-- l. 79 --><p class='indent'>   Let’s return to the numerator of the quadratic formula and plug in our
+new expression for \(k\):
+                                     \[ 3k \pm \sqrt {\Delta } = 3(w^2 + w) \pm (2w+1)(w^2+ w - 2) \]
+</p><!-- l. 84 --><p class='indent'>   Consider the parity of the parts of this expression. If \(w\) is even, then \(w^2 + w\) is
+even and \(w^2 + w - 2\) is also even. In that case, \(3k \pm \sqrt {\Delta }\) is even. Now if \(w\) is odd, then \(w^2 + w\) is even
+and \(w^2 + w - 2\) is again even. In this case too we have that \(3k \pm \sqrt {\Delta }\) is even. It follows then that
+the roots
+                                     \[ x_{\pm } = \frac {3k\pm \sqrt {\Delta }}{2} \]
+ are integers.
+</p><!-- l. 92 --><p class='indent'>   From \(y = 3k - x\), we obtain the corresponding integer \(y\) values.
+</p>
+   </div>
+<!-- l. 93 --><p class='indent'>
+</p>
+    
+</body> 
+</html>
